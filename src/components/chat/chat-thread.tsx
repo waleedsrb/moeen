@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { motion, useMotionValue, useTransform, animate } from "framer-motion";
 import { useRealtimeMessages } from "@/hooks/use-realtime-messages";
+import { AIThinkingRow } from "./ai-thinking-row";
 import { MessageBubble } from "./message-bubble";
 import { ImageLightbox } from "./image-lightbox";
 import {
@@ -221,7 +222,13 @@ export function ChatThread({
     }
   }, []);
 
-  useRealtimeMessages(conversationId, handleNewMessage);
+  const handleMessageUpdate = useCallback((message: Message) => {
+    setMessages((prev) =>
+      prev.map((m) => (m.id === message.id ? { ...m, ...message } : m))
+    );
+  }, []);
+
+  useRealtimeMessages(conversationId, handleNewMessage, handleMessageUpdate);
 
   const handleRetry = useCallback(
     async (msg: OptimisticMessage) => {
@@ -312,6 +319,15 @@ export function ChatThread({
     ...optimisticMessages,
   ];
   const lastId = allMessages[allMessages.length - 1]?.id;
+  const lastReal = messages[messages.length - 1];
+  const awaitingAI =
+    lastReal &&
+    optimisticMessages.length === 0 &&
+    lastReal.direction === "inbound" &&
+    lastReal.sender_type === "customer" &&
+    !lastReal.ai_processed
+      ? lastReal
+      : null;
 
   let lastDateKey = "";
 
@@ -473,6 +489,12 @@ export function ChatThread({
                 </MessageScrollerItem>
               );
             })}
+            {awaitingAI && (
+              <AIThinkingRow
+                key={awaitingAI.id}
+                createdAt={awaitingAI.created_at}
+              />
+            )}
           </MessageScrollerContent>
         </MessageScrollerViewport>
         <MessageScrollerButton direction="end" />

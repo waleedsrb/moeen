@@ -51,6 +51,8 @@ export interface PromptComposerProps extends Omit<React.FormHTMLAttributes<HTMLF
   /** Allow sending with no text, e.g. when files are attached. */
   allowEmpty?: boolean;
   autoFocus?: boolean;
+  /** Extra classes for the textarea, e.g. a script-specific font. */
+  textareaClassName?: string;
 }
 
 const FOCUS = "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40";
@@ -110,6 +112,7 @@ export function PromptComposer({
   maxLength,
   allowEmpty = false,
   autoFocus,
+  textareaClassName = "",
   className = "",
   ...props
 }: PromptComposerProps) {
@@ -192,6 +195,7 @@ export function PromptComposer({
       <textarea
         ref={textareaRef}
         rows={1}
+        dir="auto"
         value={text}
         autoFocus={autoFocus}
         disabled={disabled}
@@ -202,7 +206,7 @@ export function PromptComposer({
         onPaste={(e) => {
           if (takeFiles(e.clipboardData.files) && !e.clipboardData.getData("text")) e.preventDefault();
         }}
-        className="block max-h-[200px] w-full resize-none overflow-y-auto bg-transparent px-3.5 pb-1 pt-3 text-[14px] leading-6 text-foreground outline-none placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-60"
+        className={`block max-h-[200px] w-full resize-none overflow-y-auto bg-transparent px-3.5 pb-1 pt-3 text-[14px] leading-6 text-foreground outline-none placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-60 ${textareaClassName}`}
       />
 
       <div className="flex items-center gap-1.5 px-2 pb-2 pt-1">

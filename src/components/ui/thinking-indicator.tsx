@@ -36,7 +36,7 @@ export interface ThinkingIndicatorProps extends React.HTMLAttributes<HTMLDivElem
 const MORPH = "cubic-bezier(0.16,1,0.3,1)";
 // A light that sweeps across the label. A mask, not a text clip, so it reaches letters that are mid-morph.
 const SHEEN =
-  "text-foreground [mask-image:linear-gradient(90deg,rgb(0_0_0/0.45)_35%,#000_50%,rgb(0_0_0/0.45)_65%)] [mask-size:200%_100%] animate-[ui-sheen_1.4s_linear_infinite] motion-reduce:animate-none motion-reduce:[mask-image:none] motion-reduce:text-foreground/70";
+  "text-current [mask-image:linear-gradient(90deg,rgb(0_0_0/0.45)_35%,#000_50%,rgb(0_0_0/0.45)_65%)] [mask-size:200%_100%] animate-[ui-sheen_1.4s_linear_infinite] motion-reduce:animate-none motion-reduce:[mask-image:none] motion-reduce:text-foreground/70";
 const TENTHS = { minimumFractionDigits: 1, maximumFractionDigits: 1 };
 const WHOLE = { maximumFractionDigits: 0 };
 const TWO_DIGITS = { minimumIntegerDigits: 2, maximumFractionDigits: 0 };
@@ -91,7 +91,7 @@ function Mark({ variant }: { variant: IndicatorVariant }) {
         {[0, 150, 300].map((delay) => (
           <span
             key={delay}
-            className="size-1 rounded-full bg-foreground animate-[ui-bounce_1.2s_ease-in-out_infinite] motion-reduce:animate-none"
+            className="size-1 rounded-full bg-current animate-[ui-bounce_1.2s_ease-in-out_infinite] motion-reduce:animate-none"
             style={{ animationDelay: `${delay}ms` }}
           />
         ))}
@@ -100,14 +100,14 @@ function Mark({ variant }: { variant: IndicatorVariant }) {
   if (variant === "pulse")
     return (
       <span aria-hidden="true" className="flex size-4 items-center justify-center">
-        <span className="size-2.5 rounded-full bg-foreground animate-[ui-breathe_1.6s_ease-in-out_infinite] motion-reduce:animate-none" />
+        <span className="size-2.5 rounded-full bg-current animate-[ui-breathe_1.6s_ease-in-out_infinite] motion-reduce:animate-none" />
       </span>
     );
   if (variant === "scan")
     return (
       <span aria-hidden="true" className="flex h-4 items-center">
         <span className="relative h-[3px] w-6 overflow-hidden rounded-full bg-border">
-          <span className="absolute inset-y-0 start-0 w-2/5 rounded-full bg-foreground animate-[ui-scan_1.1s_cubic-bezier(0.45,0,0.55,1)_infinite] motion-reduce:animate-none" />
+          <span className="absolute inset-y-0 start-0 w-2/5 rounded-full bg-current animate-[ui-scan_1.1s_cubic-bezier(0.45,0,0.55,1)_infinite] motion-reduce:animate-none" />
         </span>
       </span>
     );
@@ -115,7 +115,7 @@ function Mark({ variant }: { variant: IndicatorVariant }) {
     <span aria-hidden="true" className="relative flex size-4 items-center justify-center">
       <span className="absolute inset-[1.5px] rounded-full border border-border" />
       <span className="absolute inset-0 animate-spin [animation-duration:1.4s] motion-reduce:animate-none">
-        <span className="absolute left-1/2 top-0 size-[5px] -translate-x-1/2 rounded-full bg-foreground" />
+        <span className="absolute left-1/2 top-0 size-[5px] -translate-x-1/2 rounded-full bg-current" />
       </span>
     </span>
   );

@@ -52,6 +52,8 @@ export interface VoiceNoteProps extends Omit<React.HTMLAttributes<HTMLDivElement
   label?: string;
   onPlay?: () => void;
   onEnded?: () => void;
+  /** Bars to show when the audio can't be decoded (e.g. a cross-origin CDN). */
+  fallbackPeaks?: number[];
 }
 
 const EASE = "cubic-bezier(0.16,1,0.3,1)";
@@ -126,6 +128,7 @@ export function VoiceNote({
   label = "Voice note",
   onPlay,
   onEnded,
+  fallbackPeaks,
   className = "",
   ...props
 }: VoiceNoteProps) {
@@ -176,9 +179,11 @@ export function VoiceNote({
     const controller = new AbortController();
     decodePeaks(src, 128, controller.signal)
       .then((p) => !controller.signal.aborted && setDecoded(p))
-      .catch(() => {});
+      .catch(() => {
+        if (!controller.signal.aborted && fallbackPeaks) setDecoded(fallbackPeaks);
+      });
     return () => controller.abort();
-  }, [src, peaks]);
+  }, [src, peaks, fallbackPeaks]);
 
   // The bars grow in once there's something to show.
   React.useEffect(() => {

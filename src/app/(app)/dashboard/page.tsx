@@ -6,6 +6,7 @@ import { InventoryAlertsAsync } from "@/components/dashboard/inventory-alerts-as
 import { InventoryAlertsSkeleton } from "@/components/dashboard/inventory-alerts-skeleton";
 import { SetupChecklist } from "@/components/dashboard/setup-checklist";
 import { AIRuntimeStatus } from "@/components/dashboard/ai-runtime-status";
+import { AIPausedNotice } from "@/components/dashboard/ai-paused-notice";
 import { NotificationCenter } from "@/components/dashboard/notification-center";
 import { NumberRoll } from "@/components/ui/number-roll";
 import { createClient } from "@/lib/supabase/server";
@@ -39,7 +40,7 @@ export default async function DashboardPage() {
   ] = await Promise.all([
     supabase
       .from("merchant_settings")
-      .select("low_stock_threshold, instagram_connected, ai_status, ai_persona_name")
+      .select("low_stock_threshold, instagram_connected, ai_status, ai_paused_at, ai_persona_name")
       .eq("merchant_id", merchant.id)
       .single(),
     supabase.rpc("dashboard_metrics", { p_merchant_id: merchant.id }),
@@ -128,6 +129,9 @@ export default async function DashboardPage() {
           />
         )}
 
+        {aiStatus === "paused" && (
+          <AIPausedNotice pausedAt={settingsResult.data?.ai_paused_at ?? null} />
+        )}
         <AIRuntimeStatus
           aiStatus={aiStatus}
           workerStatus={workerStatus}
