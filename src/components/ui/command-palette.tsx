@@ -54,7 +54,7 @@ export function CommandPalette({
         />
         <DialogPrimitive.Popup
           className={cn(
-            "fixed top-[20%] left-1/2 z-50 w-full max-w-lg -translate-x-1/2 rounded-xl bg-popover text-popover-foreground ring-1 ring-foreground/10 shadow-lg duration-100 outline-none data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95"
+            "fixed top-[20%] left-1/2 z-50 w-full max-w-lg -translate-x-1/2 rounded-xl bg-popover text-popover-foreground ring-(length:--hairline) ring-foreground/10 shadow-lg duration-100 outline-none data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95"
           )}
         >
           <DialogPrimitive.Title className="sr-only">
