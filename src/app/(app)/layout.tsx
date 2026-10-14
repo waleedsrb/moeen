@@ -18,6 +18,7 @@ import { CommandPaletteProvider } from "@/components/layout/command-palette-prov
 import { Sidebar } from "@/components/layout/sidebar";
 import { TopBar } from "@/components/layout/top-bar";
 import { MobileNav } from "@/components/layout/mobile-nav";
+import { Toaster } from "@/components/ui/toast-stack";
 
 export default async function AppLayout({
   children,
@@ -77,6 +78,8 @@ export default async function AppLayout({
                     </div>
                     <MobileNav />
                   </div>
+                  {/* Sits above the fixed mobile nav on small screens */}
+                  <Toaster className="max-sm:bottom-20" />
                 </CommandPaletteProvider>
               </FlagsCountProvider>
             </OrdersCountProvider>

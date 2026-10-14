@@ -21,6 +21,7 @@ import {
 } from "@/components/ui/sheet";
 import { Textarea } from "@/components/ui/textarea";
 import { formatPrice } from "@/lib/utils/inventory";
+import { toast } from "@/components/ui/toast-stack";
 import type { OrderCustomerLite } from "@/types/order";
 import type { Product } from "@/types/product";
 
@@ -205,6 +206,7 @@ export function ManualOrderSheet({ open, onOpenChange }: ManualOrderSheetProps) 
 
     onOpenChange(false);
     reset();
+    toast.success("Order created");
     router.push(`/orders/${data.order_id}`);
   }
 

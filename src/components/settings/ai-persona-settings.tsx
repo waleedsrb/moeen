@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import { StatusButton } from "@/components/ui/status-button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
@@ -13,7 +13,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Loader2 } from "lucide-react";
 
 interface AIPersonaSettingsProps {
   initialPersonaName: string | null;
@@ -206,15 +205,17 @@ export function AIPersonaSettings({
 
         {error && <p className="text-sm text-red-500">{error}</p>}
 
-        <Button onClick={handleSave} disabled={loading} className="w-full sm:w-auto">
-          {loading ? (
-            <Loader2 className="me-2 h-4 w-4 animate-spin" />
-          ) : saved ? (
-            "Saved!"
-          ) : (
-            "Save Persona Settings"
-          )}
-        </Button>
+        <StatusButton
+
+          onClick={handleSave}
+
+          status={loading ? "pending" : error ? "error" : saved ? "success" : "idle"}
+
+          labels={{ idle: "Save Persona Settings" }}
+
+          className="w-full sm:w-auto"
+
+        />
       </CardContent>
     </Card>
   );

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import { toast } from "@/components/ui/toast-stack";
 import {
   ORDER_ALLOWED_TRANSITIONS,
   ORDER_STATUS_LABELS,
@@ -61,6 +62,11 @@ export function OrderStatusActions({
     }
 
     onOrderChange(data.order);
+    toast.success(
+      status === "cancelled"
+        ? `${data.order.order_number} cancelled`
+        : `${data.order.order_number} moved to ${ORDER_STATUS_LABELS[status]}`
+    );
   }
 
   return (

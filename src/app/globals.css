@@ -267,6 +267,16 @@
   }
 }
 
+/* Toast stack (Hairline UI): time-left hairline */
+@keyframes ui-progress {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
 /* Shimmer skeleton (used by per-route loading.tsx) */
 @keyframes skeleton-shimmer {
   0% {

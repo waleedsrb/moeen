@@ -2,12 +2,11 @@
 
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import { StatusButton } from "@/components/ui/status-button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import { Loader2 } from "lucide-react";
 
 interface AIBehaviorSettingsProps {
   initialHandoffMessage: string;
@@ -181,19 +180,17 @@ export function AIBehaviorSettings({
 
         {error && <p className="text-sm text-red-500">{error}</p>}
 
-        <Button
+        <StatusButton
+
           onClick={handleSave}
-          disabled={loading}
+
+          status={loading ? "pending" : error ? "error" : saved ? "success" : "idle"}
+
+          labels={{ idle: "Save Behavior Settings" }}
+
           className="w-full sm:w-auto"
-        >
-          {loading ? (
-            <Loader2 className="me-2 h-4 w-4 animate-spin" />
-          ) : saved ? (
-            "Saved!"
-          ) : (
-            "Save Behavior Settings"
-          )}
-        </Button>
+
+        />
       </CardContent>
     </Card>
   );
