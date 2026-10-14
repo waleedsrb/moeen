@@ -249,8 +249,8 @@ export function ScrollStory({ steps, side = "end", onStepChange, className = "",
           ref={listRef}
           className="relative pb-[calc(var(--story-h)*0.12)] pt-8 @min-[520px]:pt-[calc(var(--story-h)*0.38)]"
         >
-          <span ref={trackRef} aria-hidden="true" className="absolute start-[5px] w-px bg-border" />
-          <span ref={fillRef} aria-hidden="true" className="absolute start-[5px] w-px bg-foreground" />
+          <span ref={trackRef} aria-hidden="true" className="absolute start-[5px] w-(--hairline) bg-border" />
+          <span ref={fillRef} aria-hidden="true" className="absolute start-[5px] w-(--hairline) bg-foreground" />
           {steps.map((s, i) => {
             const on = i === active;
             const reached = i <= active;

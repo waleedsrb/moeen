@@ -571,6 +571,8 @@ This project uses **base-ui** backed shadcn components (not Radix). Key differen
 
 **Installed components:** button, input, label, card, separator, select, avatar, dropdown-menu, tooltip, dialog, sheet, table, badge, textarea, tabs, skeleton, switch
 
+**Hairline UI:** interactive components (number roll, status button, toasts, data table, kanban, filter bar, command palette, date range picker, tag input, drop zone, prompt composer, voice note, approval card, chat notice, landing FAQ/tabs/footer) are vendored by hand from hairlineui.com into `src/components/ui/`. See the "Hairline UI Components" section of `docs/05_DESIGN_SYSTEM.md` for where each is used, local modifications, and vendoring rules. `@dnd-kit/*`, `cmdk` and `react-day-picker` were removed.
+
 ## Manual Setup Required After Each Phase
 
 Always check after implementation:

@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useRef, useState, type CSSProperties } from "react";
-import Link from "next/link";
 import {
   AlertTriangle,
   ArrowRight,
@@ -13,7 +12,6 @@ import {
   Copy,
   House,
   LayoutDashboard,
-  Loader2,
   MessageCircle,
   MessageSquare,
   MessageSquareX,
@@ -22,7 +20,6 @@ import {
   PackageCheck,
   PackageX,
   Pill,
-  Plus,
   Scissors,
   Settings,
   ShoppingBag,
@@ -33,6 +30,9 @@ import {
 import type { LucideIcon } from "lucide-react";
 import { Navbar } from "@/components/landing/navbar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { FaqAccordion } from "@/components/ui/faq-accordion";
+import { FeatureTabs } from "@/components/ui/feature-tabs";
+import { NewsletterFooter } from "@/components/ui/newsletter-footer";
 import { cn } from "@/lib/utils";
 import styles from "./landing.module.css";
 
@@ -1162,7 +1162,6 @@ function HowItWorks() {
 
 function DashboardTour() {
   const [active, setActive] = useState<TourView>("dashboard");
-  const view = tourViews.find((item) => item.id === active) ?? tourViews[0];
 
   return (
     <section id="tour" className={styles.section}>
@@ -1171,43 +1170,37 @@ function DashboardTour() {
           Four screens. One shape of work. Every detail designed for a merchant on a phone, in a hurry, with sticky fingers from kanafeh syrup.
         </SectionHeader>
 
-        <Reveal className={styles.tourTabs}>
-          {tourViews.map((item) => (
-            <button
-              key={item.id}
-              className={cn(styles.btn, styles.btnMd)}
-              onClick={() => setActive(item.id)}
-              style={{
-                borderColor: active === item.id ? "var(--color-fg)" : "var(--color-border)",
-                borderRadius: 99,
-                background: active === item.id ? "var(--color-fg)" : "transparent",
-                color: active === item.id ? "var(--color-bg)" : "var(--color-fg-secondary)",
-              }}
-              type="button"
-            >
-              {item.label}
-            </button>
-          ))}
-        </Reveal>
-
-        <Reveal className={styles.tourGrid}>
-          <div>
-            <h3 className={styles.editorialH} style={{ marginBottom: 18, fontSize: "clamp(24px, 3vw, 36px)" }}>
-              {view.title}
-            </h3>
-            <p style={{ margin: 0, color: "var(--color-fg-secondary)", fontSize: 16, lineHeight: 1.55 }}>
-              {view.desc}
-            </p>
-          </div>
-          <div className={cn(styles.glass, styles.tourPanel)}>
-            <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 14 }}>
-              <span style={{ width: 8, height: 8, borderRadius: "50%", background: "#10b981" }} />
-              <span className={styles.mono} style={{ color: "var(--color-fg-muted)", fontSize: 11 }}>
-                moeen.app/{active}
-              </span>
-            </div>
-            <MiniDashboard view={active} />
-          </div>
+        <Reveal>
+          <FeatureTabs
+            className="[&_[role=tablist]]:mb-8 [&_[role=tablist]]:justify-center"
+            value={active}
+            onValueChange={(id) => setActive(id as TourView)}
+            tabs={tourViews.map((item) => ({
+              id: item.id,
+              label: item.label,
+              content: (
+                <div className={styles.tourGrid}>
+                  <div>
+                    <h3 className={styles.editorialH} style={{ marginBottom: 18, fontSize: "clamp(24px, 3vw, 36px)" }}>
+                      {item.title}
+                    </h3>
+                    <p style={{ margin: 0, color: "var(--color-fg-secondary)", fontSize: 16, lineHeight: 1.55 }}>
+                      {item.desc}
+                    </p>
+                  </div>
+                  <div className={cn(styles.glass, styles.tourPanel)}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 14 }}>
+                      <span style={{ width: 8, height: 8, borderRadius: "50%", background: "#10b981" }} />
+                      <span className={styles.mono} style={{ color: "var(--color-fg-muted)", fontSize: 11 }}>
+                        moeen.app/{item.id}
+                      </span>
+                    </div>
+                    <MiniDashboard view={item.id} />
+                  </div>
+                </div>
+              ),
+            }))}
+          />
         </Reveal>
       </div>
     </section>
@@ -1585,63 +1578,29 @@ function FAQSection() {
     <section id="faq" className={styles.section}>
       <div className={styles.containerNarrow}>
         <SectionHeader num="0.7 Frequently asked" title="Things merchants ask first." centered />
-        <Reveal className={styles.faqList}>
-          {faqs.map((faq, i) => (
-            <details className={styles.faqItem} key={faq.q}>
-              <summary className={styles.faqQuestion}>
-                <span style={{ display: "flex", alignItems: "baseline", gap: 20 }}>
-                  <span className={styles.mono} style={{ color: "var(--color-fg-muted)", fontSize: 11 }}>
-                    {String(i + 1).padStart(2, "0")}
-                  </span>
-                  <span style={{ fontSize: 18, fontWeight: 500, letterSpacing: "-0.01em" }}>{faq.q}</span>
-                </span>
-                <Plus className={styles.faqIcon} size={18} />
-              </summary>
-              <div style={{ maxWidth: 680, padding: "0 0 28px 50px" }}>
-                <p style={{ margin: 0, color: "var(--color-fg-secondary)", fontSize: 15.5, lineHeight: 1.65 }}>
-                  {faq.a}
-                </p>
-              </div>
-            </details>
-          ))}
+        <Reveal>
+          <FaqAccordion
+            items={faqs.map((faq) => ({ question: faq.q, answer: faq.a }))}
+          />
         </Reveal>
       </div>
     </section>
   );
 }
 
-function FooterCTA() {
-  const [email, setEmail] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [submitted, setSubmitted] = useState(false);
-  const [error, setError] = useState("");
-
-  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-    setError("");
-    setLoading(true);
-
-    try {
-      const res = await fetch("/api/waitlist", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email }),
-      });
-      const data = (await res.json()) as { error?: string };
-
-      if (!res.ok) {
-        setError(data.error ?? "Something went wrong");
-        return;
-      }
-
-      setSubmitted(true);
-    } catch {
-      setError("Failed to join waitlist");
-    } finally {
-      setLoading(false);
-    }
+async function joinWaitlist(email: string) {
+  const res = await fetch("/api/waitlist", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email }),
+  });
+  if (!res.ok) {
+    const data = (await res.json().catch(() => ({}))) as { error?: string };
+    throw new Error(data.error ?? "Failed to join waitlist");
   }
+}
 
+function FooterCTA() {
   return (
     <section id="cta" className={cn(styles.section, styles.ctaSection)}>
       <div className={cn(styles.containerNarrow, styles.ctaWrap)}>
@@ -1664,31 +1623,12 @@ function FooterCTA() {
           </p>
         </Reveal>
 
-        {submitted ? (
-          <Reveal delay={3}>
-            <div style={{ display: "inline-flex", alignItems: "center", gap: 10, padding: "14px 22px", border: "1px solid rgb(16 185 129 / 0.3)", borderRadius: 999, background: "rgb(16 185 129 / 0.1)", color: "#10b981", fontSize: 15, fontWeight: 500 }}>
-              <CheckCircle2 size={18} /> You&apos;re on the list. We&apos;ll be in touch within a week.
-            </div>
-          </Reveal>
-        ) : (
-          <Reveal delay={3}>
-            <form className={styles.ctaForm} onSubmit={handleSubmit}>
-              <input
-                className={styles.ctaInput}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="your@email.com"
-                required
-                type="email"
-                value={email}
-              />
-              <LandingButton disabled={loading} type="submit">
-                {loading ? <Loader2 size={14} className="animate-spin" /> : "Request access"}
-                {!loading && <ArrowRight size={14} />}
-              </LandingButton>
-            </form>
-            {error && <p style={{ marginTop: 10, color: "#ef4444", fontSize: 13 }}>{error}</p>}
-          </Reveal>
-        )}
+        <Reveal delay={3}>
+          <LandingButton href="#early-access">
+            Request access
+            <ArrowRight size={14} />
+          </LandingButton>
+        </Reveal>
 
         <Reveal delay={4}>
           <div style={{ marginTop: 28, color: "var(--color-fg-muted)", fontSize: 13 }}>
@@ -1700,44 +1640,37 @@ function FooterCTA() {
         </Reveal>
       </div>
 
-      <footer className={styles.footerRail}>
-        <div className={styles.footerGrid}>
-          <div>
-            <Wordmark size={20} />
-            <p style={{ maxWidth: 280, marginTop: 14, color: "var(--color-fg-muted)", fontSize: 13, lineHeight: 1.6 }}>
-              Mo&apos;een — &ldquo;the one who helps&rdquo;. An order management platform for the merchants who already live on Telegram and WhatsApp.
-            </p>
-          </div>
-          {[
-            { h: "Product", l: [["Live demo", "#demo"], ["Dashboard", "#tour"], ["Who it's for", "#features"], ["FAQ", "#faq"]] },
-            { h: "Company", l: [["About", "#mena"], ["Pilot program", "#cta"], ["Contact", "mailto:hello@moeen.app"]] },
-            { h: "Resources", l: [["Privacy", "#"], ["Terms", "#"], ["Status", "#"]] },
-          ].map((col) => (
-            <div key={col.h}>
-              <div className={styles.mono} style={{ marginBottom: 14, color: "var(--color-fg-muted)", fontSize: 10, letterSpacing: "0.08em", textTransform: "uppercase" }}>
-                {col.h}
-              </div>
-              <ul style={{ display: "flex", flexDirection: "column", gap: 10, margin: 0, padding: 0, listStyle: "none" }}>
-                {col.l.map(([text, href]) => (
-                  <li key={text}>
-                    <Link href={href} style={{ color: "var(--color-fg-secondary)", fontSize: 13.5, textDecoration: "none" }}>
-                      {text}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ))}
-        </div>
-        <div className={styles.footerBottom}>
-          <span className={styles.mono} style={{ color: "var(--color-fg-muted)", fontSize: 11 }}>
-            © 2026 Mo&apos;een · Made in Palestine
+      <NewsletterFooter
+        id="early-access"
+        className="mt-24 bg-transparent"
+        brand={{
+          name: "Mo'een",
+          tagline:
+            "Mo'een, \u201cthe one who helps\u201d. An order management platform for the merchants who already live on Telegram and WhatsApp.",
+        }}
+        newsletter={{
+          title: "Request early access",
+          description: "We onboard a few merchants a week and reach out personally.",
+          placeholder: "your@email.com",
+          buttonLabel: "Request access",
+          sentLabel: "You're on the list",
+          sentHelper: () => "We'll be in touch within a week.",
+          allowResend: false,
+          onSubscribe: joinWaitlist,
+        }}
+        columns={[
+          { title: "Product", links: [{ label: "Live demo", href: "#demo" }, { label: "Dashboard", href: "#tour" }, { label: "Who it's for", href: "#features" }, { label: "FAQ", href: "#faq" }] },
+          { title: "Company", links: [{ label: "About", href: "#mena" }, { label: "Pilot program", href: "#cta" }, { label: "Contact", href: "mailto:hello@moeen.app" }] },
+          { title: "Resources", links: [{ label: "Privacy", href: "/privacy" }] },
+        ]}
+        copyright={
+          <span>
+            © 2026 Mo&apos;een · Made in Palestine ·{" "}
+            <span className={styles.arabic}>صُنع بحُب في فلسطين</span>
           </span>
-          <span className={styles.arabic} style={{ color: "var(--color-fg-muted)", fontSize: 13 }}>
-            صُنع بحُب في فلسطين
-          </span>
-        </div>
-      </footer>
+        }
+        wordmark="Mo'een"
+      />
     </section>
   );
 }

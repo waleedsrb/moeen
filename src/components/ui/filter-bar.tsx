@@ -768,7 +768,7 @@ export function FilterBar({
                   {field?.icon && <span aria-hidden="true">{field.icon}</span>}
                   {field?.label ?? f.field}
                 </span>
-                <span aria-hidden="true" className="h-3.5 w-px bg-border" />
+                <span aria-hidden="true" className="h-3.5 w-(--hairline) bg-border" />
                 <button
                   type="button"
                   onClick={() => flipOp(f)}
@@ -778,7 +778,7 @@ export function FilterBar({
                 >
                   <TextMorph>{w.op}</TextMorph>
                 </button>
-                <span aria-hidden="true" className="h-3.5 w-px bg-border" />
+                <span aria-hidden="true" className="h-3.5 w-(--hairline) bg-border" />
                 <button
                   type="button"
                   aria-haspopup="listbox"

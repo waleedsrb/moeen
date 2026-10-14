@@ -196,7 +196,7 @@ export function FeatureTabs({ tabs, value, defaultValue, onValueChange, autoplay
           );
         })}
         {/* The hairline under the row, then the line: it slides to the chosen tab and, with autoplay, fills as its time runs. */}
-        <span aria-hidden="true" className="absolute inset-x-0 bottom-0 h-px bg-border" />
+        <span aria-hidden="true" className="absolute inset-x-0 bottom-0 h-(--hairline) bg-border" />
         <span
           aria-hidden="true"
           className="absolute bottom-0 start-0 h-px overflow-hidden"

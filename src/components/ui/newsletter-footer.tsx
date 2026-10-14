@@ -54,6 +54,12 @@ export interface FooterNewsletter {
   onSubscribe: (email: string) => Promise<unknown> | unknown;
   /** Seconds before the email can be sent again. */
   resendAfter?: number;
+  /** Shown in the field once subscribed. Defaults to "Check your inbox". */
+  sentLabel?: string;
+  /** Helper line once subscribed. Defaults to "We sent a link to …". */
+  sentHelper?: (email: string) => string;
+  /** Turn off the resend button, for signups that send no email. */
+  allowResend?: boolean;
 }
 
 export interface NewsletterFooterProps extends React.HTMLAttributes<HTMLElement> {
@@ -135,7 +141,7 @@ function FooterAnchor({ link, className = "" }: { link: FooterLink; className?: 
   );
 }
 
-function Signup({ title = "Get the changelog by email", description = "One email a month, when something ships. No spam.", placeholder = "you@company.com", buttonLabel = "Subscribe", onSubscribe, resendAfter = 30, reduced }: FooterNewsletter & { reduced: boolean }) {
+function Signup({ title = "Get the changelog by email", description = "One email a month, when something ships. No spam.", placeholder = "you@company.com", buttonLabel = "Subscribe", onSubscribe, resendAfter = 30, sentLabel = "Check your inbox", sentHelper, allowResend = true, reduced }: FooterNewsletter & { reduced: boolean }) {
   const id = React.useId();
   const [email, setEmail] = React.useState("");
   const [phase, setPhase] = React.useState<"idle" | "sending" | "sent" | "resending">("idle");
@@ -150,7 +156,7 @@ function Signup({ title = "Get the changelog by email", description = "One email
 
   const sent = phase === "sent" || phase === "resending";
   const busy = phase === "sending" || phase === "resending";
-  const counting = phase === "sent" && seconds > 0 && !resent;
+  const counting = allowResend && phase === "sent" && seconds > 0 && !resent;
   const fix = phase === "idle" && !error ? suggest(email.trim()) : null;
 
   // The resend countdown.
@@ -198,7 +204,7 @@ function Signup({ title = "Get the changelog by email", description = "One email
   };
 
   const resend = async () => {
-    if (phase !== "sent" || seconds > 0) return;
+    if (!allowResend || phase !== "sent" || seconds > 0) return;
     setError(null);
     setPhase("resending");
     try {
@@ -224,9 +230,9 @@ function Signup({ title = "Get the changelog by email", description = "One email
   };
 
   const helper = sent
-    ? error ?? (resent ? `Sent again to ${sentTo}.` : `We sent a link to ${sentTo}.`)
+    ? error ?? (resent ? `Sent again to ${sentTo}.` : sentHelper ? sentHelper(sentTo) : `We sent a link to ${sentTo}.`)
     : error ?? (fix ? "Did you mean" : description);
-  const label = phase === "sending" ? "Subscribing" : phase === "resending" ? "Sending" : sent ? (resent ? "Sent" : seconds > 0 ? "Resend in" : "Resend") : buttonLabel;
+  const label = phase === "sending" ? "Subscribing" : phase === "resending" ? "Sending" : sent ? (!allowResend ? "Done" : resent ? "Sent" : seconds > 0 ? "Resend in" : "Resend") : buttonLabel;
   const swap = (on: boolean, delay = 0) =>
     reduced
       ? { opacity: on ? 1 : 0 }
@@ -285,14 +291,14 @@ function Signup({ title = "Get the changelog by email", description = "One email
                 style={{ strokeDashoffset: sent ? 0 : 1, transition: sent && !reduced ? `stroke-dashoffset 420ms ${EASE} 320ms` : "none" }}
               />
             </svg>
-            <span className="truncate">Check your inbox</span>
+            <span className="truncate">{sentLabel}</span>
           </div>
         </div>
         <button
           ref={buttonRef}
           type={sent ? "button" : "submit"}
           onClick={sent ? resend : undefined}
-          aria-disabled={busy || counting || undefined}
+          aria-disabled={busy || counting || (sent && !allowResend) || undefined}
           aria-busy={busy || undefined}
           className={`cursor-pointer disabled:cursor-default aria-disabled:cursor-default inline-flex h-9 shrink-0 items-center rounded-full text-[13px] font-medium ${sent ? "px-3.5" : "px-4"} transition-[background-color,color,box-shadow] duration-300 ${FOCUS} ${
             sent
