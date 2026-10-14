@@ -1,5 +1,6 @@
 "use client";
 
+import { NumberRoll } from "@/components/ui/number-roll";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
@@ -60,12 +61,12 @@ export function MobileNav() {
                 <Icon className="h-5 w-5" />
                 {isMessages && unreadCount > 0 && (
                   <span className="absolute -top-1 -end-1 h-4 min-w-4 flex items-center justify-center rounded-full bg-primary text-primary-foreground text-[9px] px-1">
-                    {unreadCount > 99 ? "99+" : unreadCount}
+                    <NumberRoll value={Math.min(unreadCount, 99)} suffix={unreadCount > 99 ? "+" : ""} duration={400} />
                   </span>
                 )}
                 {isOrders && ordersCount > 0 && (
                   <span className="absolute -top-1 -end-1 h-4 min-w-4 flex items-center justify-center rounded-full bg-primary text-primary-foreground text-[9px] px-1">
-                    {ordersCount > 99 ? "99+" : ordersCount}
+                    <NumberRoll value={Math.min(ordersCount, 99)} suffix={ordersCount > 99 ? "+" : ""} duration={400} />
                   </span>
                 )}
                 {isFlags && flagsCount > 0 && (
@@ -75,7 +76,7 @@ export function MobileNav() {
                       flagBadgeColorClass(flagsPriority)
                     )}
                   >
-                    {flagsCount > 99 ? "99+" : flagsCount}
+                    <NumberRoll value={Math.min(flagsCount, 99)} suffix={flagsCount > 99 ? "+" : ""} duration={400} />
                   </span>
                 )}
               </div>

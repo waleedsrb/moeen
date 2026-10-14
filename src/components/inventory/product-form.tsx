@@ -2,6 +2,7 @@
 
 import { useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
+import { StatusButton } from "@/components/ui/status-button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -21,7 +22,7 @@ import {
   SheetTitle,
   SheetDescription,
 } from "@/components/ui/sheet";
-import { Upload, X, Plus, Loader2 } from "lucide-react";
+import { Upload, X, Plus } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import type { Product, ProductVariant } from "@/types/product";
 
@@ -447,10 +448,15 @@ export function ProductForm({
           </div>
 
           {/* Submit */}
-          <Button type="submit" className="w-full" disabled={submitting}>
-            {submitting && <Loader2 className="me-2 h-4 w-4 animate-spin" />}
-            {isEditing ? "Save Changes" : "Add Product"}
-          </Button>
+          <StatusButton
+            type="submit"
+            className="w-full"
+            status={submitting ? "pending" : error ? "error" : "idle"}
+            labels={{
+              idle: isEditing ? "Save Changes" : "Add Product",
+              pending: isEditing ? "Saving" : "Adding",
+            }}
+          />
         </form>
       </SheetContent>
     </Sheet>

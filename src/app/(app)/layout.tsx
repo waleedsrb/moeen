@@ -1,4 +1,3 @@
-import { LucideProvider } from "lucide-react";
 import { requireMerchant } from "@/lib/auth/require-merchant";
 import { getUnreadTotal } from "@/lib/db/unread";
 import { getOpenFlagsSummary } from "@/lib/db/flags";
@@ -46,46 +45,43 @@ export default async function AppLayout({
     businessType: m.business_type,
   }));
 
-  // Hairline icons: 1.5 stroke by default; an explicit strokeWidth still wins
   return (
-    <LucideProvider strokeWidth={1.5}>
-      <MerchantProvider merchant={merchantData}>
-        <OwnedMerchantsProvider merchants={ownedMerchantsData}>
-          <UnreadCountProvider initialCount={unreadTotal}>
-            <OrdersCountProvider>
-              <FlagsCountProvider
+    <MerchantProvider merchant={merchantData}>
+      <OwnedMerchantsProvider merchants={ownedMerchantsData}>
+        <UnreadCountProvider initialCount={unreadTotal}>
+          <OrdersCountProvider>
+            <FlagsCountProvider
+              initialCount={flagsSummary.count}
+              initialPriority={flagsSummary.highestPriority}
+            >
+              <AudioUnlock />
+              <LazyUnreadCountSubscriber
+                merchantId={merchant.id}
+                initialCount={unreadTotal}
+              />
+              <OrdersCountSubscriber merchantId={merchant.id} />
+              <LazyFlagsCountSubscriber
+                merchantId={merchant.id}
                 initialCount={flagsSummary.count}
-                initialPriority={flagsSummary.highestPriority}
-              >
-                <AudioUnlock />
-                <LazyUnreadCountSubscriber
-                  merchantId={merchant.id}
-                  initialCount={unreadTotal}
-                />
-                <OrdersCountSubscriber merchantId={merchant.id} />
-                <LazyFlagsCountSubscriber
-                  merchantId={merchant.id}
-                  initialCount={flagsSummary.count}
-                />
-                <CommandPaletteProvider>
-                  <div className="flex h-screen">
-                    <Sidebar />
-                    <div className="flex flex-1 flex-col min-w-0">
-                      <TopBar />
-                      <main className="flex-1 flex flex-col overflow-hidden p-4 sm:p-6 pb-20 sm:pb-6">
-                        {children}
-                      </main>
-                    </div>
-                    <MobileNav />
+              />
+              <CommandPaletteProvider>
+                <div className="flex h-screen">
+                  <Sidebar />
+                  <div className="flex flex-1 flex-col min-w-0">
+                    <TopBar />
+                    <main className="flex-1 flex flex-col overflow-hidden p-4 sm:p-6 pb-20 sm:pb-6">
+                      {children}
+                    </main>
                   </div>
-                  {/* Sits above the fixed mobile nav on small screens */}
-                  <Toaster className="max-sm:bottom-20" />
-                </CommandPaletteProvider>
-              </FlagsCountProvider>
-            </OrdersCountProvider>
-          </UnreadCountProvider>
-        </OwnedMerchantsProvider>
-      </MerchantProvider>
-    </LucideProvider>
+                  <MobileNav />
+                </div>
+                {/* Sits above the fixed mobile nav on small screens */}
+                <Toaster className="max-sm:bottom-20" />
+              </CommandPaletteProvider>
+            </FlagsCountProvider>
+          </OrdersCountProvider>
+        </UnreadCountProvider>
+      </OwnedMerchantsProvider>
+    </MerchantProvider>
   );
 }

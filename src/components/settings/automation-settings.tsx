@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Bell, Loader2, MailCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { StatusButton } from "@/components/ui/status-button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -158,10 +159,11 @@ export function AutomationSettings({ initial }: { initial: AutomationSettingsVal
         </p>
         {error && <p className="text-sm text-red-500">{error}</p>}
         {notice && <p className="text-sm text-emerald-600">{notice}</p>}
-        <Button onClick={save} disabled={loading}>
-          {loading && <Loader2 className="me-2 h-4 w-4 animate-spin" />}
-          Save Automation Settings
-        </Button>
+        <StatusButton
+          onClick={save}
+          status={loading ? "pending" : error ? "error" : notice ? "success" : "idle"}
+          labels={{ idle: "Save Automation Settings" }}
+        />
       </CardContent>
     </Card>
   );

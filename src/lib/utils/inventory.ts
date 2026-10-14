@@ -66,14 +66,17 @@ export function getStockLabel(status: StockStatus): string {
   }
 }
 
-export function formatPrice(price: number, currency: string = "ILS"): string {
+export function currencySymbol(currency: string = "ILS"): string {
   const symbols: Record<string, string> = {
     ILS: "₪",
     USD: "$",
     JOD: "JD",
   };
-  const symbol = symbols[currency] ?? currency;
-  return `${symbol}${price.toFixed(2)}`;
+  return symbols[currency] ?? currency;
+}
+
+export function formatPrice(price: number, currency: string = "ILS"): string {
+  return `${currencySymbol(currency)}${price.toFixed(2)}`;
 }
 
 export function getStockBarPercentage(

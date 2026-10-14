@@ -3,6 +3,8 @@
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
+import { StatusButton } from "@/components/ui/status-button";
+import { PriceRoll } from "@/components/ui/price-roll";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -474,11 +476,13 @@ export function ManualOrderSheet({ open, onOpenChange }: ManualOrderSheetProps) 
               </div>
               <div className="flex items-center justify-between">
                 <span className="font-mono font-semibold">
-                  {formatPrice(total, currency)}
+                  <PriceRoll value={total} currency={currency} />
                 </span>
-                <Button type="button" disabled={submitting} onClick={submit}>
-                  {submitting ? "Creating..." : "Create order"}
-                </Button>
+                <StatusButton
+                  onClick={submit}
+                  status={submitting ? "pending" : error ? "error" : "idle"}
+                  labels={{ idle: "Create order", pending: "Creating" }}
+                />
               </div>
             </div>
           )}

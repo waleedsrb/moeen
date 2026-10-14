@@ -3,6 +3,8 @@
 import { useEffect, useMemo, useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { StatusButton } from "@/components/ui/status-button";
+import { PriceRoll } from "@/components/ui/price-roll";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -194,14 +196,13 @@ export function OrderDataPanel({ order, onOrderChange }: OrderDataPanelProps) {
         <div className="flex items-center justify-between">
           <h3 className="text-sm font-semibold">Line items</h3>
           {editable && (
-            <Button
-              type="button"
+            <StatusButton
               size="sm"
-              disabled={saving || items.length === 0}
+              disabled={items.length === 0}
               onClick={saveItems}
-            >
-              {saving ? "Saving..." : "Save items"}
-            </Button>
+              status={saving ? "pending" : error ? "error" : "idle"}
+              labels={{ idle: "Save items" }}
+            />
           )}
         </div>
 
@@ -292,13 +293,13 @@ export function OrderDataPanel({ order, onOrderChange }: OrderDataPanelProps) {
             <div className="flex justify-between gap-4 text-sm">
               <span className="text-muted-foreground">Subtotal</span>
               <span className="font-mono">
-                {formatPrice(itemTotal, order.currency)}
+                <PriceRoll value={itemTotal} currency={order.currency} />
               </span>
             </div>
             <div className="flex justify-between gap-4 text-sm font-semibold">
               <span>Total</span>
               <span className="font-mono">
-                {formatPrice(itemTotal, order.currency)}
+                <PriceRoll value={itemTotal} currency={order.currency} />
               </span>
             </div>
           </div>

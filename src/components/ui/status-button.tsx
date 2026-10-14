@@ -1,7 +1,8 @@
 // Hairline UI · status-button · MIT License
 // Copyright (c) 2026 Hairline UI · https://hairlineui.com/license#components
 
-// Mo'een adaptations: logical (RTL-safe) spacing, semantic color tokens, durations inside the 0.4s app ceiling.
+// Mo'een adaptations: logical (RTL-safe) spacing, semantic color tokens, durations inside the 0.4s app ceiling,
+// and the same shape and height as ui/button so the two sit side by side.
 
 "use client";
 
@@ -148,8 +149,8 @@ export function StatusButton({
           if (busy) return e.preventDefault();
           onClick?.(e);
         }}
-        className={`cursor-pointer disabled:cursor-default aria-disabled:cursor-default inline-flex items-center justify-center whitespace-nowrap rounded-full font-medium transition-[background-color,color,box-shadow,transform,padding] duration-300 active:scale-[0.97] ${
-          sm ? `h-7 text-[12px] ${variant === "ghost" ? "px-2.5" : "px-3"}` : "h-9 px-4 text-[13px]"
+        className={`cursor-pointer disabled:cursor-default aria-disabled:cursor-default inline-flex items-center justify-center whitespace-nowrap rounded-lg font-medium transition-[background-color,color,box-shadow,transform,padding] duration-300 active:scale-[0.97] ${
+          sm ? `h-7 text-[12px] ${variant === "ghost" ? "px-2.5" : "px-3"}` : "h-8 px-2.5 text-sm"
         } ${FOCUS} ${tone} ${className}`}
         {...props}
       >

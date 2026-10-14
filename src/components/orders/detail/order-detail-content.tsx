@@ -1,5 +1,6 @@
 "use client";
 
+import { TextMorph } from "@/components/ui/text-morph";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { useRealtimeOrders } from "@/hooks/use-realtime-orders";
@@ -122,7 +123,7 @@ export function OrderDetailContent({
           variant="outline"
           className={cn("font-medium", statusColorClass(order.status))}
         >
-          {ORDER_STATUS_LABELS[order.status]}
+          <TextMorph>{ORDER_STATUS_LABELS[order.status]}</TextMorph>
         </Badge>
       </div>
 

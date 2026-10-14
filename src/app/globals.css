@@ -49,6 +49,9 @@
   --radius-3xl: calc(var(--radius) * 2.2);
   --radius-4xl: calc(var(--radius) * 2.6);
 
+  /* Hairline: every default border (border, border-t, divide-y…) is one physical pixel on ≥2x screens */
+  --default-border-width: var(--hairline);
+
   /* Mo'een custom fonts */
   --font-arabic: var(--font-arabic);
 
