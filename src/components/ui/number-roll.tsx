@@ -169,8 +169,6 @@ export function NumberRoll({ value, format, locales, prefix = "", suffix = "", f
   const formatter = React.useMemo(() => new Intl.NumberFormat(locales, format), [locales, format && JSON.stringify(format)]); // eslint-disable-line react-hooks/exhaustive-deps
   const text = `${prefix}${formatter.format(shown)}${suffix}`;
   const cols = React.useMemo(() => columns(text), [text]);
-  // Mo'een: vendored as-is; reading these refs in render is deliberate (last value / first paint, no re-render wanted).
-  // eslint-disable-next-line react-hooks/refs
   const trend = direction === "up" ? 1 : direction === "down" ? -1 : Math.sign(shown - previous.current);
 
   // Places that disappear fold away instead of vanishing.
@@ -195,7 +193,6 @@ export function NumberRoll({ value, format, locales, prefix = "", suffix = "", f
             {c.char}
           </span>
         ))}
-        {/* eslint-disable-next-line react-hooks/refs */}
         {cols.map((c) => (
           <Place key={c.key} enter={mounted.current && !reduced}>
             {c.digit === null ? c.char : <Digit digit={c.digit} trend={trend} duration={duration} reduced={reduced} rollIn={mounted.current} />}

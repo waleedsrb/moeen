@@ -1,13 +1,14 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { StatusButton } from "@/components/ui/status-button";
+import { TagInput } from "@/components/ui/tag-input";
+import { DropZone } from "@/components/ui/drop-zone";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
-import { Badge } from "@/components/ui/badge";
 import {
   Select,
   SelectContent,
@@ -22,7 +23,7 @@ import {
   SheetTitle,
   SheetDescription,
 } from "@/components/ui/sheet";
-import { Upload, X, Plus } from "lucide-react";
+import { X, Plus } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import type { Product, ProductVariant } from "@/types/product";
 
@@ -42,7 +43,6 @@ export function ProductForm({
   onSuccess,
 }: ProductFormProps) {
   const isEditing = !!product;
-  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [name, setName] = useState(product?.name ?? "");
   const [price, setPrice] = useState(product?.price?.toString() ?? "");
@@ -54,7 +54,6 @@ export function ProductForm({
   const [altNames, setAltNames] = useState<string[]>(
     product?.alternative_names ?? []
   );
-  const [altNameInput, setAltNameInput] = useState("");
   const [lowStockThreshold, setLowStockThreshold] = useState(
     product?.low_stock_threshold?.toString() ?? ""
   );
@@ -76,7 +75,6 @@ export function ProductForm({
     setQuantity("0");
     setDescription("");
     setAltNames([]);
-    setAltNameInput("");
     setLowStockThreshold("");
     setVariants([]);
     setIsActive(true);
@@ -86,24 +84,13 @@ export function ProductForm({
     setError("");
   }
 
-  function handleImageSelect(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
+  function handleImageFile(file: File | undefined) {
     if (!file) return;
     setImageFile(file);
     setImagePreview(URL.createObjectURL(file));
   }
 
-  function addAltName() {
-    const trimmed = altNameInput.trim();
-    if (trimmed && !altNames.includes(trimmed)) {
-      setAltNames([...altNames, trimmed]);
-      setAltNameInput("");
-    }
-  }
 
-  function removeAltName(name: string) {
-    setAltNames(altNames.filter((n) => n !== name));
-  }
 
   function addVariant() {
     setVariants([...variants, { name: "", options: [] }]);
@@ -236,46 +223,36 @@ export function ProductForm({
           {/* Image Upload */}
           <div className="space-y-2">
             <Label>Product Image</Label>
-            <div
-              className="border-2 border-dashed rounded-lg p-4 text-center cursor-pointer hover:border-foreground/30 transition-colors"
-              onClick={() => fileInputRef.current?.click()}
-            >
-              {imagePreview ? (
-                <div className="relative">
-                  <img
-                    src={imagePreview}
-                    alt="Preview"
-                    className="mx-auto h-32 w-32 object-cover rounded-md"
-                  />
-                  <button
-                    type="button"
-                    className="absolute top-0 right-0 bg-background rounded-full p-1"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setImagePreview("");
-                      setImageFile(null);
-                      setImageUrl("");
-                    }}
-                  >
-                    <X className="h-4 w-4" />
-                  </button>
-                </div>
-              ) : (
-                <div className="space-y-2 py-4">
-                  <Upload className="h-8 w-8 mx-auto text-muted-foreground" />
-                  <p className="text-sm text-muted-foreground">
-                    Click to upload image
-                  </p>
-                </div>
-              )}
-              <input
-                ref={fileInputRef}
-                type="file"
+            {imagePreview ? (
+              <div className="relative rounded-lg border border-border p-4">
+                <img
+                  src={imagePreview}
+                  alt="Preview"
+                  className="mx-auto h-32 w-32 object-cover rounded-md"
+                />
+                <button
+                  type="button"
+                  aria-label="Remove image"
+                  className="absolute top-2 end-2 bg-background rounded-full p-1"
+                  onClick={() => {
+                    setImagePreview("");
+                    setImageFile(null);
+                    setImageUrl("");
+                  }}
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
+            ) : (
+              <DropZone
+                multiple={false}
                 accept="image/jpeg,image/png,image/webp,image/gif"
-                className="hidden"
-                onChange={handleImageSelect}
+                maxSize={5 * 1024 * 1024}
+                title="Drop a product image"
+                hint="JPEG, PNG, WebP or GIF, up to 5 MB"
+                onFilesChange={(files) => handleImageFile(files[0])}
               />
-            </div>
+            )}
           </div>
 
           {/* Name */}
@@ -354,34 +331,15 @@ export function ProductForm({
             <p className="text-xs text-muted-foreground">
               Used by AI to match customer orders
             </p>
-            <div className="flex gap-2">
-              <Input
-                value={altNameInput}
-                onChange={(e) => setAltNameInput(e.target.value)}
-                placeholder="Add alternative name"
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") {
-                    e.preventDefault();
-                    addAltName();
-                  }
-                }}
-              />
-              <Button type="button" variant="outline" onClick={addAltName}>
-                Add
-              </Button>
-            </div>
-            {altNames.length > 0 && (
-              <div className="flex flex-wrap gap-1.5 mt-2">
-                {altNames.map((n) => (
-                  <Badge key={n} variant="secondary" className="gap-1">
-                    {n}
-                    <button type="button" onClick={() => removeAltName(n)}>
-                      <X className="h-3 w-3" />
-                    </button>
-                  </Badge>
-                ))}
-              </div>
-            )}
+            <TagInput
+              label="Alternative Names"
+              placeholder="Add alternative name"
+              createLabel={null}
+              value={altNames.map((n) => ({ id: n, value: n }))}
+              onValueChange={(tags) =>
+                setAltNames([...new Set(tags.map((t) => t.value))])
+              }
+            />
           </div>
 
           {/* Low Stock Threshold */}

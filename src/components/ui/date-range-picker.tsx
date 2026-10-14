@@ -2,22 +2,17 @@
 
 import * as React from "react";
 import { format } from "date-fns";
-import { CalendarIcon } from "lucide-react";
-import type { DateRange } from "react-day-picker";
+import { X } from "lucide-react";
 
 import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
-import { Calendar } from "@/components/ui/calendar";
 import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
+  DateRangePicker as HairlineDateRangePicker,
+  type DateRange,
+} from "@/components/ui/hairline-date-range-picker";
 
 // The rest of the app stores date-range filters as plain "yyyy-MM-dd"
-// strings (the native <input type="date"> format), so this wraps
-// react-day-picker's Date-based range selection and speaks that format
-// at the boundary.
+// strings (the native <input type="date"> format), so this wraps the
+// Hairline picker's Date-based range and speaks that format at the boundary.
 function toDate(value?: string) {
   return value ? new Date(`${value}T00:00:00`) : undefined;
 }
@@ -41,61 +36,27 @@ export function DateRangePicker({
   placeholder = "Date range",
   className,
 }: DateRangePickerProps) {
-  const [open, setOpen] = React.useState(false);
-  const range: DateRange | undefined = React.useMemo(
-    () => ({ from: toDate(from), to: toDate(to) }),
-    [from, to]
-  );
-
-  const label =
-    range.from && range.to
-      ? `${format(range.from, "MMM d")} – ${format(range.to, "MMM d")}`
-      : range.from
-        ? format(range.from, "MMM d, yyyy")
-        : placeholder;
+  const start = toDate(from);
+  const end = toDate(to ?? from);
+  const value: DateRange | null = start && end ? { start, end } : null;
 
   return (
-    <Popover open={open} onOpenChange={setOpen}>
-      <PopoverTrigger
-        render={
-          <Button
-            type="button"
-            variant="outline"
-            className={cn(
-              "justify-start text-start font-normal",
-              !range.from && "text-muted-foreground",
-              className
-            )}
-          />
-        }
-      >
-        <CalendarIcon className="opacity-60" />
-        {label}
-      </PopoverTrigger>
-      <PopoverContent className="w-auto p-0" align="start">
-        <Calendar
-          mode="range"
-          selected={range}
-          onSelect={(next) => onChange(toValue(next?.from), toValue(next?.to))}
-          numberOfMonths={2}
-          defaultMonth={range.from}
-        />
-        {(range.from || range.to) && (
-          <div className="flex justify-end border-t border-border p-2">
-            <Button
-              type="button"
-              variant="ghost"
-              size="sm"
-              onClick={() => {
-                onChange(undefined, undefined);
-                setOpen(false);
-              }}
-            >
-              Clear
-            </Button>
-          </div>
-        )}
-      </PopoverContent>
-    </Popover>
+    <div className={cn("inline-flex items-center gap-1", className)}>
+      <HairlineDateRangePicker
+        value={value}
+        onValueChange={(range) => onChange(toValue(range.start), toValue(range.end))}
+        placeholder={placeholder}
+      />
+      {value && (
+        <button
+          type="button"
+          aria-label="Clear date range"
+          onClick={() => onChange(undefined, undefined)}
+          className="flex size-6 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40"
+        >
+          <X className="size-3.5" />
+        </button>
+      )}
+    </div>
   );
 }

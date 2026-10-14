@@ -15,7 +15,9 @@ import {
   TabsList,
   TabsTrigger,
 } from "@/components/ui/tabs";
+import { matchFilters, type Filter } from "@/components/ui/filter-bar";
 import { OrdersToolbar } from "./orders-toolbar";
+import { ORDER_FILTER_FIELDS, filtersFromStatus } from "./order-filters";
 import { OrdersBoard } from "./orders-board";
 import { OrdersList } from "./orders-list";
 import { OrderHistory } from "./order-history";
@@ -30,9 +32,9 @@ interface DateRange {
   to?: string;
 }
 
-function parseStatus(value: string | null): OrderStatus | "all" {
-  if (!value) return "all";
-  return value in ORDER_STATUS_LABELS ? (value as OrderStatus) : "all";
+function parseStatus(value: string | null): OrderStatus | null {
+  if (!value) return null;
+  return value in ORDER_STATUS_LABELS ? (value as OrderStatus) : null;
 }
 
 async function fetchOrder(id: string): Promise<OrderWithCustomer | null> {
@@ -49,8 +51,8 @@ export function OrdersContent({ initialOrders, merchantId }: OrdersContentProps)
   const [orders, setOrders] = useState<OrderWithCustomer[]>(initialOrders);
   const [activeTab, setActiveTab] = useState<"active" | "history">("active");
   const [view, setView] = useState<"board" | "list">("board");
-  const [statusFilter, setStatusFilter] = useState<OrderStatus | "all">(() =>
-    parseStatus(searchParams.get("status"))
+  const [filters, setFilters] = useState<Filter[]>(() =>
+    filtersFromStatus(parseStatus(searchParams.get("status")))
   );
   const [search, setSearch] = useState("");
   const [dateRange, setDateRange] = useState<DateRange | null>(null);
@@ -79,8 +81,7 @@ export function OrdersContent({ initialOrders, merchantId }: OrdersContentProps)
 
   const filteredOrders = useMemo(() => {
     const normalizedSearch = search.trim().toLowerCase();
-    return orders.filter((order) => {
-      if (statusFilter !== "all" && order.status !== statusFilter) return false;
+    return matchFilters(orders, filters, ORDER_FILTER_FIELDS).filter((order) => {
       if (dateRange?.from && order.created_at < dateRange.from) return false;
       if (dateRange?.to && order.created_at > `${dateRange.to}T23:59:59`) {
         return false;
@@ -94,7 +95,7 @@ export function OrdersContent({ initialOrders, merchantId }: OrdersContentProps)
           false)
       );
     });
-  }, [dateRange, orders, search, statusFilter]);
+  }, [dateRange, filters, orders, search]);
 
   async function handleStatusChange(orderId: string, toStatus: OrderStatus) {
     const previousOrders = orders;
@@ -168,8 +169,10 @@ export function OrdersContent({ initialOrders, merchantId }: OrdersContentProps)
           <OrdersToolbar
             search={search}
             onSearchChange={setSearch}
-            statusFilter={statusFilter}
-            onStatusFilterChange={setStatusFilter}
+            filters={filters}
+            onFiltersChange={setFilters}
+            matchCount={filteredOrders.length}
+            totalCount={orders.length}
             dateRange={dateRange}
             onDateRangeChange={setDateRange}
             view={view}

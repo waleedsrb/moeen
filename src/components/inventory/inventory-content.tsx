@@ -343,8 +343,9 @@ export function InventoryContent({
           products={filtered}
           merchantThreshold={merchantThreshold}
           selectedIds={selectedIds}
-          onToggleSelect={selectMode ? toggleSelect : undefined}
-          onToggleAll={selectMode ? toggleSelectAll : undefined}
+          onSelectedChange={
+            selectMode ? (ids) => setSelectedIds(new Set(ids)) : undefined
+          }
         />
       )}
 
