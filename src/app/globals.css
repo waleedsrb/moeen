@@ -229,6 +229,29 @@
   animation: page-fade 150ms ease-out both;
 }
 
+/* Number roll (Hairline UI): digit places sliding open / folding away */
+@keyframes ui-col-in {
+  from {
+    max-width: 0;
+    opacity: 0;
+  }
+  to {
+    max-width: 1em;
+    opacity: 1;
+  }
+}
+
+@keyframes ui-col-out {
+  from {
+    max-width: 1em;
+    opacity: 1;
+  }
+  to {
+    max-width: 0;
+    opacity: 0;
+  }
+}
+
 /* Shimmer skeleton (used by per-route loading.tsx) */
 @keyframes skeleton-shimmer {
   0% {
