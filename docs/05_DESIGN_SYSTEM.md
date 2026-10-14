@@ -157,6 +157,22 @@ Minimal shadows — the interface uses border and background contrast for depth,
 
 ---
 
+## Hairlines
+
+Decorative edges are as thin as the screen allows, so content carries the visual weight.
+
+| Token | Value | Usage |
+|-------|-------|-------|
+| `--hairline` | `0.5px` on ≥2x screens, `1px` otherwise | Card, dialog, popover and menu rings; separators; table rows (`ring-(length:--hairline)`, `h-(--hairline)`, `border-b-(length:--hairline)`) |
+| `--input-edge` | `#71717A` dark, `#8A8A93` light | Input, textarea and select outlines (`border-input-edge`). Meets 3:1 against background and card (WCAG 1.4.11) |
+
+Rules:
+- Decorative borders (cards, dividers) may be faint; anything a user must find to use (fields, focus ring) keeps 3:1 contrast. The focus ring stays at full width.
+- Lucide icons default to `strokeWidth` 1.5 inside the app shell (`LucideProvider` in `src/app/(app)/layout.tsx`). Pass `strokeWidth` explicitly to override.
+- Semantic edges stay thick: the order card lifecycle bar (`border-s-4`), flag pulses, AI violet treatments.
+
+---
+
 ## Animation Patterns
 
 ### Framer Motion (React State Animations)

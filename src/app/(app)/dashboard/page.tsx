@@ -7,6 +7,7 @@ import { InventoryAlertsSkeleton } from "@/components/dashboard/inventory-alerts
 import { InstagramPrompt } from "@/components/dashboard/instagram-prompt";
 import { AIRuntimeStatus } from "@/components/dashboard/ai-runtime-status";
 import { NotificationCenter } from "@/components/dashboard/notification-center";
+import { NumberRoll } from "@/components/ui/number-roll";
 import { createClient } from "@/lib/supabase/server";
 import { requireMerchant } from "@/lib/auth/require-merchant";
 import type { DashboardMetrics } from "@/types/dashboard";
@@ -19,6 +20,9 @@ import {
   Package,
   PackageCheck,
 } from "lucide-react";
+
+// KPI number transition: 0.6s per docs/05_DESIGN_SYSTEM.md
+const KPI_ROLL_MS = 600;
 
 export default async function DashboardPage() {
   const { merchant } = await requireMerchant();
@@ -130,7 +134,9 @@ export default async function DashboardPage() {
                     <Icon className={`h-4 w-4 ${kpi.color}`} />
                   </CardHeader>
                   <CardContent>
-                    <p className="text-2xl font-bold font-mono">{kpi.value}</p>
+                    <p className="text-2xl font-bold font-mono">
+                      <NumberRoll value={kpi.value} from={0} duration={KPI_ROLL_MS} />
+                    </p>
                     {kpi.trend && (
                       <p className="mt-1 font-mono text-[11px] text-muted-foreground">
                         {trendText(kpi.trend.current, kpi.trend.previous)}
@@ -159,7 +165,11 @@ export default async function DashboardPage() {
                 <div className="flex items-center justify-center gap-1.5">
                   <MessageSquare className="h-4 w-4 text-info" />
                   <p className="text-2xl font-bold font-mono">
-                    {metrics?.today_messages ?? 0}
+                    <NumberRoll
+                      value={metrics?.today_messages ?? 0}
+                      from={0}
+                      duration={KPI_ROLL_MS}
+                    />
                   </p>
                 </div>
                 <p className="text-xs text-muted-foreground">Messages</p>
@@ -174,7 +184,11 @@ export default async function DashboardPage() {
                 <div className="flex items-center justify-center gap-1.5">
                   <Package className="h-4 w-4 text-status-pending" />
                   <p className="text-2xl font-bold font-mono">
-                    {metrics?.today_orders ?? 0}
+                    <NumberRoll
+                      value={metrics?.today_orders ?? 0}
+                      from={0}
+                      duration={KPI_ROLL_MS}
+                    />
                   </p>
                 </div>
                 <p className="text-xs text-muted-foreground">Orders</p>
@@ -189,7 +203,11 @@ export default async function DashboardPage() {
                 <div className="flex items-center justify-center gap-1.5">
                   <PackageCheck className="h-4 w-4 text-status-delivered" />
                   <p className="text-2xl font-bold font-mono">
-                    {metrics?.today_delivered ?? 0}
+                    <NumberRoll
+                      value={metrics?.today_delivered ?? 0}
+                      from={0}
+                      duration={KPI_ROLL_MS}
+                    />
                   </p>
                 </div>
                 <p className="text-xs text-muted-foreground">Delivered</p>
