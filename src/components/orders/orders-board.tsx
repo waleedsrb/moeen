@@ -1,92 +1,68 @@
 "use client";
 
-import { useState } from "react";
 import {
-  DndContext,
-  DragEndEvent,
-  PointerSensor,
-  KeyboardSensor,
-  useSensor,
-  useSensors,
-} from "@dnd-kit/core";
+  KanbanBoard,
+  type KanbanColumn,
+} from "@/components/ui/kanban-board";
 import {
-  sortableKeyboardCoordinates,
-} from "@dnd-kit/sortable";
-import { ORDER_BOARD_STATUSES, canTransition } from "@/types/order";
+  ORDER_BOARD_STATUSES,
+  ORDER_STATUS_LABELS,
+  canTransition,
+} from "@/types/order";
 import type { OrderStatus, OrderWithCustomer } from "@/types/order";
-import { OrdersBoardColumn } from "./orders-board-column";
+import { OrderCard } from "./order-card";
 
 interface OrdersBoardProps {
   orders: OrderWithCustomer[];
   onStatusChange: (orderId: string, status: OrderStatus) => Promise<void>;
 }
 
-interface DragData {
-  type: "order" | "column";
-  orderId?: string;
-  status: OrderStatus;
-}
+type BoardCard = { id: string; column: string; order: OrderWithCustomer };
 
-function getDragData(value: DragEndEvent["active"]["data"]["current"]): DragData | null {
-  const data = value as DragData | undefined;
-  if (!data) return null;
-  return data;
-}
+// Chip colours follow the lifecycle palette through the theme's chart
+// tokens: 1 blue (incoming), 2 green (confirmed), 3 amber (pending: the AI
+// is still collecting details), 4 violet (in delivery).
+const TONES: Record<string, KanbanColumn["tone"]> = {
+  collecting: 3,
+  incoming: 1,
+  confirmed: 2,
+  out_for_delivery: 4,
+};
+
+const COLUMNS: KanbanColumn[] = ORDER_BOARD_STATUSES.map((status) => ({
+  id: status,
+  title: ORDER_STATUS_LABELS[status],
+  tone: TONES[status],
+}));
 
 export function OrdersBoard({ orders, onStatusChange }: OrdersBoardProps) {
-  const [errorOrderId, setErrorOrderId] = useState<string | null>(null);
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const sensors = useSensors(
-    useSensor(PointerSensor, { activationConstraint: { distance: 6 } }),
-    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
-  );
-
-  async function handleDragEnd(event: DragEndEvent) {
-    const activeData = getDragData(event.active.data.current);
-    const overData = event.over ? getDragData(event.over.data.current) : null;
-    if (!activeData || activeData.type !== "order" || !overData) return;
-
-    const targetStatus = overData.status;
-    const sourceStatus = activeData.status;
-    const orderId = activeData.orderId;
-    if (!orderId || targetStatus === sourceStatus) return;
-
-    if (!canTransition(sourceStatus, targetStatus)) {
-      setErrorOrderId(orderId);
-      setErrorMessage(`Invalid transition to ${targetStatus}`);
-      window.setTimeout(() => {
-        setErrorOrderId(null);
-        setErrorMessage(null);
-      }, 3000);
-      return;
-    }
-
-    try {
-      await onStatusChange(orderId, targetStatus);
-    } catch (error) {
-      setErrorOrderId(orderId);
-      setErrorMessage(error instanceof Error ? error.message : "Status update failed");
-      window.setTimeout(() => {
-        setErrorOrderId(null);
-        setErrorMessage(null);
-      }, 3000);
-    }
-  }
+  const cards: BoardCard[] = orders
+    .filter((order) => ORDER_BOARD_STATUSES.includes(order.status))
+    .map((order) => ({ id: order.id, column: order.status, order }));
+  const currency = orders[0]?.currency ?? "ILS";
 
   return (
-    <DndContext id="orders-board" sensors={sensors} onDragEnd={handleDragEnd}>
-      <div className="flex gap-4 overflow-x-auto pb-3">
-        {ORDER_BOARD_STATUSES.map((status) => (
-          <OrdersBoardColumn
-            key={status}
-            status={status}
-            orders={orders.filter((order) => order.status === status)}
-            errorOrderId={errorOrderId}
-            errorMessage={errorMessage}
-            onStatusChange={onStatusChange}
-          />
-        ))}
-      </div>
-    </DndContext>
+    <KanbanBoard<BoardCard>
+      label="Orders board"
+      columns={COLUMNS}
+      cards={cards}
+      // Orders own their place: the parent updates them optimistically in onMove.
+      onCardsChange={() => {}}
+      cardLabel={(card) =>
+        `${card.order.order_number}, ${card.order.customers?.name ?? "Unknown customer"}`
+      }
+      refuse={(card, column) =>
+        canTransition(card.order.status, column.id as OrderStatus)
+          ? null
+          : `Can't move to ${column.title}`
+      }
+      onMove={(card, to) => onStatusChange(card.id, to.id as OrderStatus)}
+      value={(card) => card.order.total}
+      valueFormat={{ style: "currency", currency }}
+      locales="en-US"
+      renderCard={(card) => (
+        <OrderCard order={card.order} onStatusChange={onStatusChange} />
+      )}
+    />
   );
 }

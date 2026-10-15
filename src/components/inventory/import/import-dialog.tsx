@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useRef, useMemo } from "react";
+import { DropZone } from "@/components/ui/drop-zone";
+import { useState, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -20,7 +21,6 @@ import {
 import {
   FileSpreadsheet,
   Loader2,
-  Upload,
   Sparkles,
   CheckCircle2,
   AlertTriangle,
@@ -57,7 +57,6 @@ export function ImportDialog({
   merchantCurrency,
   onSuccess,
 }: ImportDialogProps) {
-  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [step, setStep] = useState<Step>("upload");
   const [statusText, setStatusText] = useState("");
@@ -286,29 +285,15 @@ export function ImportDialog({
 
           {/* --- Upload --- */}
           {step === "upload" && (
-            <div
-              className="cursor-pointer rounded-lg border-2 border-dashed p-8 text-center transition-colors hover:border-foreground/30"
-              onClick={() => fileInputRef.current?.click()}
-            >
-              <Upload className="mx-auto h-10 w-10 text-muted-foreground" />
-              <p className="mt-3 text-sm font-medium">
-                Click to upload a spreadsheet
-              </p>
-              <p className="mt-1 text-xs text-muted-foreground">
-                .xlsx, .xls or .csv — multiple sheets supported
-              </p>
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept={ACCEPTED}
-                className="hidden"
-                onChange={(e) => {
-                  const f = e.target.files?.[0];
-                  if (f) handleFile(f);
-                  e.target.value = "";
-                }}
-              />
-            </div>
+            <DropZone
+              multiple={false}
+              accept={ACCEPTED}
+              title="Drop a spreadsheet"
+              hint=".xlsx, .xls or .csv — multiple sheets supported"
+              onFilesChange={(files) => {
+                if (files[0]) handleFile(files[0]);
+              }}
+            />
           )}
 
           {/* --- Working --- */}

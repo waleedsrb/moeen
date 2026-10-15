@@ -4,15 +4,8 @@ import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { DateRangePicker } from "@/components/ui/date-range-picker";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { ORDER_BOARD_STATUSES, ORDER_STATUS_LABELS } from "@/types/order";
-import type { OrderStatus } from "@/types/order";
+import { FilterBar, type Filter } from "@/components/ui/filter-bar";
+import { ORDER_FILTER_FIELDS } from "./order-filters";
 import { ManualOrderSheet } from "./manual-order-sheet";
 
 interface DateRange {
@@ -23,8 +16,10 @@ interface DateRange {
 interface OrdersToolbarProps {
   search: string;
   onSearchChange: (value: string) => void;
-  statusFilter: OrderStatus | "all";
-  onStatusFilterChange: (value: OrderStatus | "all") => void;
+  filters: Filter[];
+  onFiltersChange: (filters: Filter[]) => void;
+  matchCount: number;
+  totalCount: number;
   dateRange: DateRange | null;
   onDateRangeChange: (value: DateRange | null) => void;
   view: "board" | "list";
@@ -36,8 +31,10 @@ interface OrdersToolbarProps {
 export function OrdersToolbar({
   search,
   onSearchChange,
-  statusFilter,
-  onStatusFilterChange,
+  filters,
+  onFiltersChange,
+  matchCount,
+  totalCount,
   dateRange,
   onDateRangeChange,
   view,
@@ -67,24 +64,15 @@ export function OrdersToolbar({
             className="sm:max-w-xs"
           />
 
-          <Select
-            value={statusFilter}
-            onValueChange={(v) =>
-              v && onStatusFilterChange(v as OrderStatus | "all")
-            }
-          >
-            <SelectTrigger className="w-full sm:w-44">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All statuses</SelectItem>
-              {ORDER_BOARD_STATUSES.map((status) => (
-                <SelectItem key={status} value={status}>
-                  {ORDER_STATUS_LABELS[status]}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <FilterBar
+            label="Filter orders"
+            fields={ORDER_FILTER_FIELDS}
+            value={filters}
+            onValueChange={onFiltersChange}
+            count={matchCount}
+            total={totalCount}
+            noun={["order", "orders"]}
+          />
 
           <DateRangePicker
             from={dateRange?.from}

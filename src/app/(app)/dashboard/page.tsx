@@ -4,8 +4,9 @@ import { PageTransition } from "@/components/layout/page-transition";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { InventoryAlertsAsync } from "@/components/dashboard/inventory-alerts-async";
 import { InventoryAlertsSkeleton } from "@/components/dashboard/inventory-alerts-skeleton";
-import { InstagramPrompt } from "@/components/dashboard/instagram-prompt";
+import { SetupChecklist } from "@/components/dashboard/setup-checklist";
 import { AIRuntimeStatus } from "@/components/dashboard/ai-runtime-status";
+import { AIPausedNotice } from "@/components/dashboard/ai-paused-notice";
 import { NotificationCenter } from "@/components/dashboard/notification-center";
 import { NumberRoll } from "@/components/ui/number-roll";
 import { createClient } from "@/lib/supabase/server";
@@ -30,10 +31,16 @@ export default async function DashboardPage() {
 
   // One settings fetch + one RPC call: dashboard_metrics collapses
   // the 8 KPI counts (migration 009) into a single round trip.
-  const [settingsResult, metricsResult, queueHealthResult, notificationsResult] = await Promise.all([
+  const [
+    settingsResult,
+    metricsResult,
+    queueHealthResult,
+    notificationsResult,
+    productsResult,
+  ] = await Promise.all([
     supabase
       .from("merchant_settings")
-      .select("low_stock_threshold, instagram_connected, ai_status")
+      .select("low_stock_threshold, instagram_connected, ai_status, ai_paused_at, ai_persona_name")
       .eq("merchant_id", merchant.id)
       .single(),
     supabase.rpc("dashboard_metrics", { p_merchant_id: merchant.id }),
@@ -49,10 +56,17 @@ export default async function DashboardPage() {
       .eq("status", "unread")
       .order("created_at", { ascending: false })
       .limit(5),
+    supabase
+      .from("products")
+      .select("id", { count: "exact", head: true })
+      .eq("merchant_id", merchant.id)
+      .eq("is_active", true),
   ]);
 
   const threshold = settingsResult.data?.low_stock_threshold ?? 5;
   const instagramConnected = settingsResult.data?.instagram_connected ?? false;
+  const hasProducts = (productsResult.count ?? 0) > 0;
+  const hasPersona = Boolean(settingsResult.data?.ai_persona_name);
   const aiStatus = settingsResult.data?.ai_status === "paused" ? "paused" : "active";
   const workerStatus = queueHealthResult.data?.worker_status ?? "not_configured";
   const metrics = (metricsResult.data ?? null) as DashboardMetrics | null;
@@ -106,9 +120,18 @@ export default async function DashboardPage() {
       <div className="space-y-6">
         <h1 className="text-2xl font-semibold">Dashboard</h1>
 
-        {/* Instagram setup prompt */}
-        {!instagramConnected && <InstagramPrompt />}
+        {/* First-run setup: hidden once every step is done */}
+        {!(instagramConnected && hasProducts && hasPersona) && (
+          <SetupChecklist
+            instagramConnected={instagramConnected}
+            hasProducts={hasProducts}
+            hasPersona={hasPersona}
+          />
+        )}
 
+        {aiStatus === "paused" && (
+          <AIPausedNotice pausedAt={settingsResult.data?.ai_paused_at ?? null} />
+        )}
         <AIRuntimeStatus
           aiStatus={aiStatus}
           workerStatus={workerStatus}

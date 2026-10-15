@@ -1,9 +1,9 @@
 "use client";
 
-import { useState, useRef } from "react";
-import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
-import { SendHorizontal, Loader2, ImagePlus, X } from "lucide-react";
+import { useState } from "react";
+import { PromptComposer } from "@/components/ui/prompt-composer";
+import { AttachmentChip } from "@/components/ui/attachment-chip";
+import { X } from "lucide-react";
 import { useMerchant } from "@/components/layout/merchant-provider";
 import { uploadChatImage } from "@/lib/storage/upload-chat-image";
 import { cn } from "@/lib/utils";
@@ -41,19 +41,16 @@ export function ReplyInput({
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
 
   function clearImage() {
     setImageFile(null);
     if (imagePreview) URL.revokeObjectURL(imagePreview);
     setImagePreview(null);
-    if (fileInputRef.current) fileInputRef.current.value = "";
   }
 
-  function handleImageSelect(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
-    if (!file) return;
+  function handleImageFile(file: File | undefined) {
+    if (!file || !file.type.startsWith("image/")) return;
+    if (imagePreview) URL.revokeObjectURL(imagePreview);
     setError(null);
     setImageFile(file);
     setImagePreview(URL.createObjectURL(file));
@@ -91,7 +88,6 @@ export function ReplyInput({
     setContent("");
     clearImage();
     onClearReply?.();
-    if (textareaRef.current) textareaRef.current.style.height = "auto";
 
     setSending(true);
     try {
@@ -114,13 +110,6 @@ export function ReplyInput({
       );
     } finally {
       setSending(false);
-    }
-  }
-
-  function handleKeyDown(e: React.KeyboardEvent<HTMLTextAreaElement>) {
-    if (e.key === "Enter" && !e.shiftKey) {
-      e.preventDefault();
-      handleSend();
     }
   }
 
@@ -155,74 +144,32 @@ export function ReplyInput({
         </div>
       )}
 
-      {imagePreview && (
-        <div className="mb-2 flex items-center gap-2">
-          <div className="relative">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={imagePreview}
-              alt="Attachment preview"
-              className="h-16 w-16 rounded-md object-cover"
-            />
-            <button
-              type="button"
-              onClick={clearImage}
-              className="absolute -end-1.5 -top-1.5 rounded-full bg-foreground p-0.5 text-background"
-              aria-label="Remove image"
-            >
-              <X className="h-3 w-3" />
-            </button>
-          </div>
-        </div>
-      )}
-
       {error && <p className="mb-2 text-xs text-red-400">{error}</p>}
 
-      <div className="flex items-end gap-2">
-        <input
-          ref={fileInputRef}
-          type="file"
-          accept="image/jpeg,image/png,image/webp,image/gif"
-          className="hidden"
-          onChange={handleImageSelect}
-        />
-        <Button
-          size="icon"
-          variant="ghost"
-          onClick={() => fileInputRef.current?.click()}
-          disabled={disabled || busy}
-          className="shrink-0"
-          aria-label="Attach image"
-        >
-          <ImagePlus className="h-4 w-4" />
-        </Button>
-        <Textarea
-          ref={textareaRef}
-          value={content}
-          onChange={(e) => setContent(e.target.value)}
-          onKeyDown={handleKeyDown}
-          placeholder="Type a message..."
-          disabled={disabled || busy}
-          dir={isRtlText(content) ? "rtl" : "ltr"}
-          className={cn(
-            "min-h-[40px] max-h-[120px] resize-none text-sm",
-            isRtlText(content) && "font-arabic"
-          )}
-          rows={1}
-        />
-        <Button
-          size="icon"
-          onClick={handleSend}
-          disabled={(!content.trim() && !imageFile) || busy || disabled}
-          className="shrink-0"
-        >
-          {busy ? (
-            <Loader2 className="h-4 w-4 animate-spin" />
-          ) : (
-            <SendHorizontal className="h-4 w-4" />
-          )}
-        </Button>
-      </div>
+      <PromptComposer
+        value={content}
+        onValueChange={setContent}
+        onSubmit={() => handleSend()}
+        status={busy ? "submitted" : "ready"}
+        placeholder="Type a message..."
+        disabled={disabled}
+        allowEmpty={!!imageFile}
+        accept="image/jpeg,image/png,image/webp,image/gif"
+        onFilesSelected={(files) => handleImageFile(files[0])}
+        textareaClassName={cn(isRtlText(content) && "font-arabic")}
+        attachments={
+          imageFile && imagePreview ? (
+            <AttachmentChip
+              name={imageFile.name}
+              size={imageFile.size}
+              type={imageFile.type}
+              previewUrl={imagePreview}
+              status={uploading ? "uploading" : "ready"}
+              onRemove={uploading ? undefined : clearImage}
+            />
+          ) : undefined
+        }
+      />
     </div>
   );
 }

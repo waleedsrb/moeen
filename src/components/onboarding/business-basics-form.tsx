@@ -2,7 +2,7 @@
 
 import { useActionState } from "react";
 import { createMerchantProfile, type OnboardingState } from "@/app/(onboarding)/onboarding/actions";
-import { Button } from "@/components/ui/button";
+import { StatusButton } from "@/components/ui/status-button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -12,7 +12,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Loader2 } from "lucide-react";
 
 const businessTypes = [
   { value: "food", label: "Food & Beverages" },
@@ -84,10 +83,12 @@ export function BusinessBasicsForm({
         <p className="text-sm text-destructive">{state.error}</p>
       )}
 
-      <Button type="submit" className="w-full" disabled={isPending}>
-        {isPending && <Loader2 className="me-2 h-4 w-4 animate-spin" />}
-        {submitLabel}
-      </Button>
+      <StatusButton
+        type="submit"
+        className="w-full"
+        status={isPending ? "pending" : state.error ? "error" : "idle"}
+        labels={{ idle: submitLabel, pending: "Setting up" }}
+      />
     </form>
   );
 }

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Button } from "@/components/ui/button";
+import { StatusButton } from "@/components/ui/status-button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -13,7 +13,6 @@ import {
   DialogDescription,
   DialogFooter,
 } from "@/components/ui/dialog";
-import { Loader2 } from "lucide-react";
 
 interface StockAdjustmentDialogProps {
   open: boolean;
@@ -131,12 +130,14 @@ export function StockAdjustmentDialog({
           </div>
 
           <DialogFooter>
-            <Button type="submit" disabled={submitting}>
-              {submitting && (
-                <Loader2 className="me-2 h-4 w-4 animate-spin" />
-              )}
-              {mode === "add" ? "Add Stock" : "Remove Stock"}
-            </Button>
+            <StatusButton
+              type="submit"
+              status={submitting ? "pending" : error ? "error" : "idle"}
+              labels={{
+                idle: mode === "add" ? "Add Stock" : "Remove Stock",
+                pending: mode === "add" ? "Adding" : "Removing",
+              }}
+            />
           </DialogFooter>
         </form>
       </DialogContent>

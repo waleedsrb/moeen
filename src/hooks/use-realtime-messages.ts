@@ -6,11 +6,15 @@ import type { Message } from "@/types/message";
 
 export function useRealtimeMessages(
   conversationId: string | null,
-  onNewMessage: (message: Message) => void
+  onNewMessage: (message: Message) => void,
+  /** Row updates, e.g. the AI pipeline flipping ai_processed. */
+  onMessageUpdate?: (message: Message) => void
 ) {
   const cbRef = useRef(onNewMessage);
+  const updateRef = useRef(onMessageUpdate);
   useEffect(() => {
     cbRef.current = onNewMessage;
+    updateRef.current = onMessageUpdate;
   });
 
   useEffect(() => {
@@ -32,6 +36,21 @@ export function useRealtimeMessages(
           const message = payload.new as Message;
           if (message) {
             cbRef.current(message);
+          }
+        }
+      )
+      .on(
+        "postgres_changes",
+        {
+          event: "UPDATE",
+          schema: "public",
+          table: "messages",
+          filter: `conversation_id=eq.${conversationId}`,
+        },
+        (payload) => {
+          const message = payload.new as Message;
+          if (message) {
+            updateRef.current?.(message);
           }
         }
       )

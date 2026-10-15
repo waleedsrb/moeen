@@ -4,8 +4,9 @@ import { useOptimistic, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { AlertTriangle, Check, Loader2 } from "lucide-react";
+import { StatusButton } from "@/components/ui/status-button";
+import { NumberRoll } from "@/components/ui/number-roll";
+import { AlertTriangle, Check } from "lucide-react";
 import { useFlagsSummarySetter } from "@/components/layout/flags-count-provider";
 import { highestPriority } from "@/lib/utils/flags";
 import type { Flag } from "@/types/flag";
@@ -100,7 +101,7 @@ export function FlagsList({ initialFlags }: FlagsListProps) {
                   {section.title}
                 </CardTitle>
                 <Badge className={section.badgeColor}>
-                  {section.flags.length}
+                  <NumberRoll value={section.flags.length} duration={400} />
                 </Badge>
               </div>
             </CardHeader>
@@ -138,22 +139,17 @@ export function FlagsList({ initialFlags }: FlagsListProps) {
                         </p>
                       )}
                     </div>
-                    <Button
+                    <StatusButton
                       size="sm"
                       variant="ghost"
                       onClick={() => resolve(flag.id)}
-                      disabled={isResolving}
+                      status={
+                        isResolving ? "pending" : hasError ? "error" : "idle"
+                      }
+                      icon={<Check className="h-3.5 w-3.5" />}
+                      labels={{ idle: "Resolve", pending: "Resolving" }}
                       className="shrink-0"
-                    >
-                      {isResolving ? (
-                        <Loader2 className="h-4 w-4 animate-spin" />
-                      ) : (
-                        <>
-                          <Check className="me-1 h-4 w-4" />
-                          Resolve
-                        </>
-                      )}
-                    </Button>
+                    />
                   </div>
                 );
               })}

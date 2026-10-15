@@ -5,7 +5,7 @@ import {
   updateBusinessProfile,
   type BusinessProfileState,
 } from "@/app/(app)/settings/actions";
-import { Button } from "@/components/ui/button";
+import { StatusButton } from "@/components/ui/status-button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -15,7 +15,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Loader2 } from "lucide-react";
 
 const businessTypes = [
   { value: "food", label: "Food & Beverages" },
@@ -96,10 +95,11 @@ export function BusinessProfileForm({
         <p className="text-sm text-status-confirmed">Saved.</p>
       )}
 
-      <Button type="submit" disabled={isPending}>
-        {isPending && <Loader2 className="me-2 h-4 w-4 animate-spin" />}
-        Save Changes
-      </Button>
+      <StatusButton
+        type="submit"
+        status={isPending ? "pending" : state.error ? "error" : state.success ? "success" : "idle"}
+        labels={{ idle: "Save Changes" }}
+      />
     </form>
   );
 }

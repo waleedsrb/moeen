@@ -1,5 +1,6 @@
 "use client";
 
+import { NumberRoll } from "@/components/ui/number-roll";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -136,7 +137,7 @@ export function ConversationList({
                         variant="default"
                         className="h-5 min-w-5 flex items-center justify-center px-1.5 text-[10px] shrink-0"
                       >
-                        {conversation.unread_count}
+                        <NumberRoll value={conversation.unread_count} duration={400} />
                       </Badge>
                     )}
                   </div>

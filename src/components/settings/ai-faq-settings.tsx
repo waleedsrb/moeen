@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { StatusButton } from "@/components/ui/status-button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Loader2, Plus, Trash2, Save } from "lucide-react";
@@ -206,18 +207,12 @@ export function AIFAQSettings({ initialFaq }: AIFAQSettingsProps) {
                 <p className="text-xs text-red-500">{entry.error}</p>
               )}
               <div className="flex gap-2">
-                <Button
+                <StatusButton
                   size="sm"
                   onClick={() => savePending(entry.tempId)}
-                  disabled={entry.saving}
-                >
-                  {entry.saving ? (
-                    <Loader2 className="me-1.5 h-3.5 w-3.5 animate-spin" />
-                  ) : (
-                    <Save className="me-1.5 h-3.5 w-3.5" />
-                  )}
-                  Save
-                </Button>
+                  status={entry.saving ? "pending" : entry.error ? "error" : "idle"}
+                  icon={<Save className="h-3.5 w-3.5" />}
+                />
                 <Button
                   size="sm"
                   variant="ghost"

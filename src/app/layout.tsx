@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { DM_Sans, Noto_Naskh_Arabic, JetBrains_Mono } from "next/font/google";
 import { SpeedInsights } from "@vercel/speed-insights/next";
+import { LucideProvider } from "lucide-react";
 import { ThemeProvider } from "@/components/theme-provider";
 import "./globals.css";
 
@@ -59,7 +60,10 @@ export default function RootLayout({
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />
       </head>
       <body className="min-h-full flex flex-col bg-background text-foreground">
-        <ThemeProvider>{children}</ThemeProvider>
+        {/* Hairline icons: 1.5 stroke by default; an explicit strokeWidth still wins */}
+        <LucideProvider strokeWidth={1.5}>
+          <ThemeProvider>{children}</ThemeProvider>
+        </LucideProvider>
         <SpeedInsights />
       </body>
     </html>

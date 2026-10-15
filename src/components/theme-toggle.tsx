@@ -1,24 +1,11 @@
 "use client";
 
-import { Moon, Sun } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { ThemeToggle as HairlineThemeToggle } from "@/components/ui/theme-toggle";
 import { useTheme } from "@/components/theme-provider";
 
 export function ThemeToggle() {
-  const { resolvedTheme, setTheme } = useTheme();
+  const { theme, setTheme } = useTheme();
 
-  return (
-    <Button
-      variant="ghost"
-      size="icon"
-      onClick={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")}
-      aria-label={`Switch to ${resolvedTheme === "dark" ? "light" : "dark"} mode`}
-    >
-      {resolvedTheme === "dark" ? (
-        <Sun className="size-4" />
-      ) : (
-        <Moon className="size-4" />
-      )}
-    </Button>
-  );
+  // Driven by ThemeProvider, so the choice stays under its "moeen-theme" key.
+  return <HairlineThemeToggle value={theme} onValueChange={setTheme} />;
 }

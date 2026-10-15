@@ -1,5 +1,6 @@
 "use client";
 
+import { NumberRoll } from "@/components/ui/number-roll";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
@@ -78,7 +79,7 @@ export function Sidebar() {
                   variant="default"
                   className="h-5 min-w-5 flex items-center justify-center px-1.5 text-[10px] ms-auto"
                 >
-                  {unreadCount > 99 ? "99+" : unreadCount}
+                  <NumberRoll value={Math.min(unreadCount, 99)} suffix={unreadCount > 99 ? "+" : ""} duration={400} />
                 </Badge>
               )}
               {item.href === "/orders" && ordersCount > 0 && (
@@ -86,7 +87,7 @@ export function Sidebar() {
                   variant="default"
                   className="h-5 min-w-5 flex items-center justify-center px-1.5 text-[10px] ms-auto"
                 >
-                  {ordersCount > 99 ? "99+" : ordersCount}
+                  <NumberRoll value={Math.min(ordersCount, 99)} suffix={ordersCount > 99 ? "+" : ""} duration={400} />
                 </Badge>
               )}
               {item.href === "/flags" && flagsCount > 0 && (
@@ -96,7 +97,7 @@ export function Sidebar() {
                     flagBadgeColorClass(flagsPriority)
                   )}
                 >
-                  {flagsCount > 99 ? "99+" : flagsCount}
+                  <NumberRoll value={Math.min(flagsCount, 99)} suffix={flagsCount > 99 ? "+" : ""} duration={400} />
                 </Badge>
               )}
             </Link>
