@@ -57,7 +57,7 @@ export function ProductDetail({
 }: ProductDetailProps) {
   const router = useRouter();
   const [product, setProduct] = useState(initialProduct);
-  const [adjustments, setAdjustments] = useState(initialAdjustments);
+  const [adjustments] = useState(initialAdjustments);
   const [editOpen, setEditOpen] = useState(false);
   const [adjustMode, setAdjustMode] = useState<"add" | "remove">("add");
   const [adjustOpen, setAdjustOpen] = useState(false);
@@ -106,6 +106,7 @@ export function ProductDetail({
         {/* Image */}
         <div className="aspect-square rounded-lg bg-muted overflow-hidden flex items-center justify-center">
           {product.image_url ? (
+            // eslint-disable-next-line @next/next/no-img-element
             <img
               src={product.image_url}
               alt={product.name}

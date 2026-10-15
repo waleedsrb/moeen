@@ -5,6 +5,7 @@
 "use client";
 
 import * as React from "react";
+import { ContextMenu, ContextMenuContent, ContextMenuTrigger } from "./context-menu";
 import { ArrowUp, ChevronDown, ChevronLeft, ChevronRight, Search, X } from "lucide-react";
 import { NumberRoll } from "./number-roll";
 import { StatusButton, type ActionStatus } from "./status-button";
@@ -97,6 +98,10 @@ export interface DataTableProps<T> extends Omit<React.HTMLAttributes<HTMLDivElem
   onEdit?: (row: T, key: string, value: string) => Promise<void> | void;
   /** Rows open into this. */
   renderDetail?: (row: T) => React.ReactNode;
+  /** Makes rows open something (a page, say): click, or Enter on the focused row. Buttons and fields inside a row keep their own clicks. */
+  onRowOpen?: (row: T) => void;
+  /** Right-click menu for a row: return ContextMenuItems. */
+  rowMenu?: (row: T) => React.ReactNode;
   pageSize?: number;
   label?: string;
 }
@@ -167,6 +172,8 @@ type RowActions<T> = {
   edit: (e: { id: string; key: string }) => void;
   finish: (row: T, key: string, value: string | null) => void;
   detail: (row: T) => React.ReactNode;
+  open: (row: T) => void;
+  menu: (row: T) => React.ReactNode;
 };
 
 type RowProps<T> = {
@@ -178,6 +185,8 @@ type RowProps<T> = {
   selectable: boolean;
   canEdit: boolean;
   hasDetail: boolean;
+  openable: boolean;
+  hasMenu: boolean;
   isSelected: boolean;
   isOpen: boolean;
   /** When its tick draws, in a range selection. */
@@ -235,7 +244,7 @@ function TableRowView<T>(p: RowProps<T>) {
     );
   };
 
-  return (
+  const el = (
     <div
       data-row-id={id}
       role="row"
@@ -244,7 +253,11 @@ function TableRowView<T>(p: RowProps<T>) {
       aria-expanded={p.hasDetail ? p.isOpen : undefined}
       tabIndex={p.rowTab}
       onFocus={(e) => e.target === e.currentTarget && a.current.cursor({ id, col: -1 })}
-      className={`relative border-b border-border transition-colors duration-200 last:border-b-0 ${CELL_FOCUS}`}
+      onClick={(e) => {
+        if (!p.openable || (e.target as HTMLElement).closest("button, a, input, textarea, select")) return;
+        a.current.open(row);
+      }}
+      className={`relative border-b border-border transition-colors duration-200 last:border-b-0 ${p.openable ? "cursor-pointer" : ""} ${CELL_FOCUS}`}
       style={{ background: p.isSelected ? "color-mix(in oklab, var(--primary) 5%, var(--background))" : "var(--background)" }}
     >
       {/* Columns, wide */}
@@ -303,8 +316,8 @@ function TableRowView<T>(p: RowProps<T>) {
         <button
           type="button"
           tabIndex={-1}
-          disabled={!p.hasDetail}
-          onClick={() => p.hasDetail && a.current.toggleOpen(id, row)}
+          disabled={!p.hasDetail && !p.openable}
+          onClick={() => (p.hasDetail ? a.current.toggleOpen(id, row) : p.openable && a.current.open(row))}
           className="flex min-w-0 flex-1 cursor-pointer items-center gap-3 text-start disabled:cursor-default"
         >
           <span className="min-w-0 flex-1">
@@ -342,6 +355,15 @@ function TableRowView<T>(p: RowProps<T>) {
       )}
     </div>
   );
+
+  if (!p.hasMenu) return el;
+  // The wrapper takes no box of its own, so the row's layout and motion are unchanged.
+  return (
+    <ContextMenu>
+      <ContextMenuTrigger render={<div className="contents" />}>{el}</ContextMenuTrigger>
+      <ContextMenuContent>{a.current.menu(row)}</ContextMenuContent>
+    </ContextMenu>
+  );
 }
 
 const TableRow = React.memo(TableRowView) as typeof TableRowView;
@@ -365,6 +387,8 @@ export function DataTable<T>({
   undoFor = 5000,
   onEdit,
   renderDetail,
+  onRowOpen,
+  rowMenu,
   pageSize = 10,
   label = "Table",
   className = "",
@@ -638,6 +662,7 @@ export function DataTable<T>({
         const col = columns[c.col];
         if (col && editable(col)) setEditing({ id: c.id, key: col.key });
         else if (renderDetail) toggleOpen(c.id, row);
+        else onRowOpen?.(row);
       },
     };
     const go = keys[e.key];
@@ -661,14 +686,11 @@ export function DataTable<T>({
   const mode = undo ? "undo" : selected.size ? "selection" : "search";
   const from = sorted.length ? current * pageSize + 1 : 0;
   const to = Math.min(sorted.length, current * pageSize + pageSize);
-  const title = columns.find((c) => c.card === "title") ?? columns[0];
-  const subtitles = columns.filter((c) => c.card === "subtitle");
-  const trailing = columns.filter((c) => c.card === "trailing");
   const sortable = columns.filter((c) => c.sortable);
 
   // What the memoised rows call, through one ref, so a row never re-renders just because these were re-created.
   const rowActions = React.useRef<RowActions<T>>(null!);
-  rowActions.current = { toggle, toggleOpen, cursor: setCursor, edit: setEditing, finish: finishEdit, detail: (row) => renderDetail?.(row) };
+  rowActions.current = { toggle, toggleOpen, cursor: setCursor, edit: setEditing, finish: finishEdit, detail: (row) => renderDetail?.(row), open: (row) => onRowOpen?.(row), menu: (row) => rowMenu?.(row) };
 
   return (
     <div className={`@container w-full text-foreground ${className}`} {...props}>
@@ -858,6 +880,8 @@ export function DataTable<T>({
                   selectable={selectable}
                   canEdit={!!onEdit}
                   hasDetail={!!renderDetail}
+                  openable={!!onRowOpen}
+                  hasMenu={!!rowMenu}
                   isSelected={selected.has(id)}
                   isOpen={open.has(id)}
                   delay={cascade ? Math.max(0, cascade.ids.indexOf(id)) * 28 : 0}

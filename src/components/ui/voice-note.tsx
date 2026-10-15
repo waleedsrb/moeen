@@ -152,7 +152,7 @@ export function VoiceNote({
   const resume = React.useRef(false);
   const derived = React.useRef("");
 
-  const source = peaks ?? decoded ?? [];
+  const source = React.useMemo(() => peaks ?? decoded ?? [], [peaks, decoded]);
   const heights = React.useMemo(() => resample(source, bars), [source, bars]);
   const length = duration || durationProp || 1;
   const shown = scrub !== null ? scrub * length : time;

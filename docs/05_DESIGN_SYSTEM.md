@@ -183,7 +183,7 @@ Interactive pieces come from [Hairline UI](https://hairlineui.com) (MIT, no npm 
 | `text-morph` | Order detail status badge; inside status button, chat notice, approval card |
 | `status-button` | Every save/submit: settings, product form, stock adjustment, onboarding, manual order, order items, order status actions, flag resolve |
 | `toast-stack` | Order status changes, manual order created (`<Toaster>` in the app layout) |
-| `data-table` | Inventory table view (paging, row selection for bulk mode) |
+| `data-table` | Inventory table view (paging, row selection for bulk mode); Orders list and History tab (`onRowOpen` navigates, `rowMenu` is the right-click menu) |
 | `kanban-board` | Orders board; drops are refused when `canTransition` says no |
 | `filter-bar` | Orders toolbar (status, source, total, created date) |
 | `hairline-command-palette` | ⌘K palette (`ui/command-palette.tsx` maps the search registry onto it) |
@@ -202,7 +202,7 @@ Interactive pieces come from [Hairline UI](https://hairlineui.com) (MIT, no npm 
 Vendoring rules:
 - Convert physical sides to logical ones (`ms-`/`pe-`/`start-`, `marginInlineStart`) except where a value is a measured pixel offset.
 - The React Compiler lint rules (`react-hooks/refs`, `purity`, `immutability`) are off for these files only (`eslint.config.mjs`); they read refs and clocks during render on purpose.
-- Local changes are small and listed here: `prompt-composer` takes `textareaClassName` and sets `dir="auto"`; `voice-note` takes `fallbackPeaks` for audio it can't decode (Instagram's CDN blocks cross-origin reads); `thinking-indicator` paints with `currentColor`; `newsletter-footer` takes `sentLabel`, `sentHelper` and `allowResend` for signups that send no email.
+- Local changes are small and listed here: `data-table` takes `onRowOpen` and `rowMenu`; `prompt-composer` takes `textareaClassName` and sets `dir="auto"`; `voice-note` takes `fallbackPeaks` for audio it can't decode (Instagram's CDN blocks cross-origin reads); `thinking-indicator` paints with `currentColor`; `newsletter-footer` takes `sentLabel`, `sentHelper` and `allowResend` for signups that send no email.
 - Not adopted: `steps-form` (onboarding is one step), `chat-history` (the conversation list needs unread badges and search), `action-receipt` and `clarifying-question` (the AI talks to customers, not to the merchant), `stats-band` and `logo-marquee` (no real numbers or customer logos yet), `scroll-story` (How it works has no visuals per step). Their files stay vendored for later.
 
 ---
