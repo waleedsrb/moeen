@@ -225,6 +225,7 @@ export function ProductForm({
             <Label>Product Image</Label>
             {imagePreview ? (
               <div className="relative rounded-lg border border-border p-4">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={imagePreview}
                   alt="Preview"

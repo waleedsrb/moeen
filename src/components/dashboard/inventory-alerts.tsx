@@ -2,7 +2,7 @@ import Link from "next/link";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { AlertTriangle, CheckCircle2, Package } from "lucide-react";
 import type { Product } from "@/types/product";
-import { getAvailableQuantity, formatPrice } from "@/lib/utils/inventory";
+import { getAvailableQuantity } from "@/lib/utils/inventory";
 
 interface InventoryAlertsProps {
   outOfStock: Product[];

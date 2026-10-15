@@ -193,7 +193,7 @@ function BoardCardView<T extends KanbanCard>({
       aria-roledescription="draggable card"
       aria-label={label}
       aria-describedby={keysId}
-      aria-pressed={lifted || undefined}
+      data-lifted={lifted || undefined}
       onKeyDown={(e) => actions.current.key(e, card)}
       onBlur={() => actions.current.blur(card)}
       className={`group/card relative cursor-grab select-none rounded-[12px] outline-none data-[lifted]:cursor-grabbing ${FOCUS}`}
@@ -260,7 +260,7 @@ export function KanbanBoard<T extends KanbanCard>({
   const note = (column: string, text: string, tone: "warn" | "error") => {
     const key = Date.now();
     setNotes((n) => ({ ...n, [column]: { text, tone, key } }));
-    window.setTimeout(() => setNotes((n) => (n[column]?.key === key ? (({ [column]: _, ...rest }) => rest)(n) : n)), 3200);
+    window.setTimeout(() => setNotes((n) => (n[column]?.key === key ? Object.fromEntries(Object.entries(n).filter(([k]) => k !== column)) : n)), 3200);
   };
 
   const colOf = (id: string) => columns.find((c) => c.id === id)!;

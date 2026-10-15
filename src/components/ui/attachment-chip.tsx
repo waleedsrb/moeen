@@ -134,6 +134,7 @@ export function AttachmentChip({
       <span className="relative flex size-9 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-muted text-muted-foreground">
         <span className="absolute inset-0 flex items-center justify-center" style={swap(!failed, reduced)}>
           {previewUrl ? (
+            // eslint-disable-next-line @next/next/no-img-element
             <img src={previewUrl} alt="" className={`size-full object-cover transition-opacity duration-300 ${status === "ready" ? "opacity-100" : "opacity-50"}`} />
           ) : (
             <TypeIcon type={type} name={name} />
